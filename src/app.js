@@ -53,6 +53,7 @@ async function init() {
   if (location.hash.includes("token=")) {
     pairing.show(
       "This device could not keep the key from the link. Paste the pairing link below — on iOS a scanned link opens Safari, whose storage is separate from the home-screen app.",
+      { error: true },
     );
     return;
   }
@@ -82,7 +83,7 @@ function failed(error) {
   const cached = readCached();
   if (cached) paint(cached, "offline");
   else nodes.freshness.textContent = "no access";
-  pairing.show(`${error.message ?? "Could not reach the ledger."}${savedKeyNote()}`);
+  pairing.show(`${error.message ?? "Could not reach the ledger."}${savedKeyNote()}`, { error: true });
 }
 
 function savedKeyNote() {

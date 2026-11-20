@@ -9,16 +9,16 @@ export function createPairing({ section, form, input, hint, onConnect }) {
       const stored = storedToken();
       if (stored) {
         input.value = "";
-        hint.textContent = "";
+        setHint(hint, "", false);
         onConnect(stored);
         return;
       }
-      hint.textContent = "Paste the pairing link a parent sent, or the key itself.";
+      setHint(hint, "Paste the pairing link a parent sent, or the key itself.", true);
       return;
     }
     const pairing = pairingFromText(text);
     if (!pairing || !looksLikeToken(pairing.token)) {
-      hint.textContent = "Paste the pairing link a parent sent, or the key itself.";
+      setHint(hint, "Paste the pairing link a parent sent, or the key itself.", true);
       return;
     }
     try {
@@ -26,11 +26,11 @@ export function createPairing({ section, form, input, hint, onConnect }) {
       saveRole(pairing.role);
       if (pairing.repo) saveRepo(pairing.repo);
     } catch {
-      hint.textContent = "This browser blocks storage, so the key cannot be kept.";
+      setHint(hint, "This browser blocks storage, so the key cannot be kept.", true);
       return;
     }
     input.value = "";
-    hint.textContent = "";
+    setHint(hint, "", false);
     onConnect(pairing.token);
   });
 
@@ -43,14 +43,19 @@ export function createPairing({ section, form, input, hint, onConnect }) {
   }
 
   return {
-    show(message = "") {
+    show(message = "", { error = false } = {}) {
       section.hidden = false;
-      hint.textContent = message;
+      setHint(hint, message, error);
       input.focus();
     },
     hide() {
       section.hidden = true;
-      hint.textContent = "";
+      setHint(hint, "", false);
     },
   };
+}
+
+function setHint(hint, message, error) {
+  hint.textContent = message;
+  hint.classList.toggle("error", error);
 }

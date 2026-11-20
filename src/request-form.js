@@ -14,16 +14,19 @@ async function submit(event, form, hint, button, onFiled) {
     request = buildRequest(fields(form));
   } catch (error) {
     hint.replaceChildren(error.message);
+    hint.classList.add("error");
     return;
   }
   const token = readToken();
   const repo = readRepo();
   if (!token) {
     hint.replaceChildren("Connect this device first.");
+    hint.classList.add("error");
     return;
   }
 
   button.disabled = true;
+  hint.classList.remove("error");
   hint.replaceChildren("Filing the request…");
   try {
     const issue = await createIssue(request, token, repo);
@@ -32,6 +35,7 @@ async function submit(event, form, hint, button, onFiled) {
     if (onFiled) onFiled();
   } catch (error) {
     hint.replaceChildren(error.message);
+    hint.classList.add("error");
     if (repo) hint.append(" ", fallbackLink(request, repo));
   } finally {
     button.disabled = false;

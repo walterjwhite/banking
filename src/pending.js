@@ -10,18 +10,21 @@ export function createPending({ section, list, status }) {
     const repo = readRepo();
     if (!token || !repo) {
       section.hidden = true;
+      status.classList.remove("error");
       return;
     }
     try {
       paint(await listOpenRequests(token, repo));
     } catch (error) {
       section.hidden = false;
+      status.classList.add("error");
       status.textContent = `Requests unavailable: ${error.message}`;
     }
   }
 
   function paint(requests) {
     section.hidden = false;
+    status.classList.remove("error");
     status.textContent = requests.length ? "" : "Nothing is waiting for a parent.";
     list.replaceChildren(...requests.map(row));
   }
@@ -60,8 +63,10 @@ export function createPending({ section, list, status }) {
     try {
       await commentOnIssue(request.number, `/${action}`, readToken(), readRepo());
       await refresh();
+      status.classList.remove("error");
       status.textContent = `#${request.number} ${action === "approve" ? "approved" : "rejected"}. The ledger follows in a moment.`;
     } catch (error) {
+      status.classList.add("error");
       status.textContent = error.message;
     }
   }

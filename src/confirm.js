@@ -39,16 +39,19 @@ async function submitPin(event, { action, input, note, setting, submit, form, on
   event.preventDefault();
   const pin = input.value.trim();
   if (!looksLikePin(pin)) {
+    note.classList.add("error");
     note.textContent = "The PIN is 4 to 8 digits.";
     return;
   }
   if (setting) await setPin(pin);
   else if (!(await checkPin(pin))) {
+    note.classList.add("error");
     note.textContent = "Wrong PIN.";
     input.value = "";
     return;
   }
   submit.disabled = true;
+  note.classList.remove("error");
   note.textContent = `${action}ing…`;
   await onConfirmed();
   form.remove();
