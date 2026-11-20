@@ -16,6 +16,8 @@
     "test": "node --test test/*.test.js"
   },
   "devDependencies": {
-    "qrcode": "^1.5.4"
+    "chart.js": "^4.5.1",
+    "qrcode": "^1.5.4",
+    "tailwindcss": "^3.4.19"
   }
 }

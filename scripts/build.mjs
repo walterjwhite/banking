@@ -3,11 +3,16 @@ import { existsSync } from "node:fs";
 import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { rewritePage, writeSiteAssets } from "./build-assets.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const dist = path.join(root, "dist");
 const srcDir = path.join(root, "src");
 const publicDir = path.join(root, "public");
+
+const extraPages = (await readdir(root))
+  .filter((name) => name.endsWith(".html") && name !== "index.html")
+  .sort();
 
 if (existsSync(path.join(publicDir, "snapshot.json"))) {
   throw new Error(
@@ -43,13 +48,23 @@ const html = (await readFile(path.join(root, "index.html"), "utf8"))
 await writeFile(path.join(dist, "index.html"), html);
 
 await cp(publicDir, dist, { recursive: true });
-await writeFile(path.join(dist, "sw.js"), await serviceWorker(version, srcFiles));
+
+const assets = await writeSiteAssets(dist, version);
+for (const page of extraPages) {
+  const html = await readFile(path.join(root, page), "utf8");
+  await writeFile(path.join(dist, page), rewritePage(html, assets));
+}
+
+await writeFile(
+  path.join(dist, "sw.js"),
+  await serviceWorker(version, srcFiles, assets),
+);
 
 console.log(`built dist/ (${version})`);
 
 async function buildHash(files) {
   const hash = createHash("sha256");
-  for (const file of ["index.html", "styles.css"]) {
+  for (const file of ["index.html", "styles.css", "tailwind.css", ...extraPages]) {
     hash.update(file);
     hash.update(await readFile(path.join(root, file)));
   }
@@ -78,12 +93,15 @@ function hashedJs(file, version) {
   return file.replace(/\.js$/, `.${version}.js`);
 }
 
-async function serviceWorker(version, files) {
+async function serviceWorker(version, files, assets) {
   const source = await readFile(path.join(publicDir, "sw.js"), "utf8");
   const shell = [
     "./",
     "./index.html",
+    ...extraPages.map((page) => `./${page}`),
     `./styles.${version}.css`,
+    assets.tailwind,
+    assets.chart,
     "./manifest.webmanifest",
     "./sw.js",
     "./icons/icon-192.png",

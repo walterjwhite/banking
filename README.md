@@ -71,6 +71,13 @@ Pages → Source: GitHub Actions** once; every push to `main` then publishes.
 `scripts/build.mjs` fails if `public/snapshot.json` exists, so the site cannot
 accidentally ship balances.
 
+## Calculators
+
+`compounding.html` and `purchase-power.html` are standalone calculator pages,
+linked from the home view. They use Tailwind and Chart.js, which the build
+vendors into `dist/assets/` with content-hashed names so the pages work
+offline; `tailwind.css` is the Tailwind input scanned from the page markup.
+
 ## What the app reads
 
 ```

@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1f6f4a" />
+    <title>Compound Interest & Wealth Retention Calculator</title>
+    <!-- Tailwind CSS for clean, modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for interactive visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="bg-slate-50 text-slate-800 font-sans min-p-4 md:p-8">
+    <nav class="max-w-6xl mx-auto mb-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+      <a href="./index.html" class="text-blue-600 hover:underline"
+        >&larr; Family Bank</a
+      >
+      <a href="./compounding.html" class="font-semibold text-slate-900"
+        >Compounding Calculator</a
+      >
+      <a href="./purchase-power.html" class="text-blue-600 hover:underline"
+        >Purchase Power</a
+      >
+    </nav>
+    <div class="max-w-6xl mx-auto space-y-6">
+      <!-- Header -->
+      <header
+        class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"
+      >
+        <h1 class="text-2xl font-bold text-slate-900">
+          Compounding Investment & Wealth Retention Calculator
+        </h1>
+        <p class="text-sm text-slate-600 mt-1">
+          Explore how micro-contributions or lump sums compound over time,
+          comparing invested growth against uninvested cash, tax drag,
+          inflation, and your net real return rate.
+        </p>
+      </header>
+
+      <!-- Main Grid: Controls & Summary Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Controls Panel -->
+        <div
+          class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 lg:col-span-1"
+        >
+          <h2 class="text-lg font-semibold text-slate-900 border-b pb-2">
+            Simulation Parameters
+          </h2>
+
+          <div>
+            <label
+              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
+              >Initial Starting Principal ($)</label
+            >
+            <input
+              type="number"
+              id="initial"
+              value="1"
+              min="0"
+              step="10"
+              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
+              >Monthly Contribution ($)</label
+            >
+            <input
+              type="number"
+              id="monthly"
+              value="0"
+              min="0"
+              step="5"
+              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
+              >Nominal Annual Return (%)</label
+            >
+            <input
+              type="number"
+              id="rate"
+              value="7"
+              min="0"
+              max="30"
+              step="0.5"
+              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
+              >Annual Inflation Rate (%)</label
+            >
+            <input
+              type="number"
+              id="inflation"
+              value="2.5"
+              min="0"
+              max="15"
+              step="0.5"
+              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label
+              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
+              >Tax Bracket / Effective Tax Rate (%)</label
+            >
+            <input
+              type="number"
+              id="taxRate"
+              value="15"
+              min="0"
+              max="50"
+              step="1"
+              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <p class="text-xs text-slate-500 mt-1">
+              Applied to accumulated investment earnings (gains) upon
+              realization.
+            </p>
+          </div>
+
+          <div>
+            <label
+              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
+              >Time Horizon (Years)</label
+            >
+            <input
+              type="number"
+              id="years"
+              value="30"
+              min="1"
+              max="50"
+              step="1"
+              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <!-- Summary Metrics & Chart -->
+        <div class="space-y-6 lg:col-span-2">
+          <!-- KPI Summary Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div
+              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
+            >
+              <p class="text-xs font-medium text-slate-500 uppercase">
+                Nominal Portfolio Value
+              </p>
+              <p id="kpiNominal" class="text-2xl font-bold text-slate-900 mt-1">
+                $0.00
+              </p>
+              <p class="text-xs text-slate-500 mt-1">
+                Total value on paper before adjustments.
+              </p>
+            </div>
+
+            <div
+              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
+            >
+              <p class="text-xs font-medium text-slate-500 uppercase">
+                Net Real Wealth
+              </p>
+              <p
+                id="kpiNetReal"
+                class="text-2xl font-bold text-emerald-600 mt-1"
+              >
+                $0.00
+              </p>
+              <p class="text-xs text-slate-500 mt-1">
+                Actual purchasing power after tax & inflation.
+              </p>
+            </div>
+
+            <div
+              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 bg-emerald-50/40"
+            >
+              <p class="text-xs font-medium text-emerald-800 uppercase">
+                Effective Net Real Return
+              </p>
+              <p
+                id="kpiRealRate"
+                class="text-2xl font-bold text-emerald-700 mt-1"
+              >
+                0.00%
+              </p>
+              <p class="text-xs text-slate-500 mt-1">
+                Net annual CAGR after tax drag & inflation loss.
+              </p>
+            </div>
+
+            <div
+              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
+            >
+              <p class="text-xs font-medium text-slate-500 uppercase">
+                Uninvested Cash (Real $)
+              </p>
+              <p
+                id="kpiCashReal"
+                class="text-xl font-semibold text-slate-600 mt-1"
+              >
+                $0.00
+              </p>
+              <p class="text-xs text-slate-500 mt-1">
+                Cash kept out of market (0% return, inflated away).
+              </p>
+            </div>
+
+            <div
+              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
+            >
+              <p class="text-xs font-medium text-amber-600 uppercase">
+                Estimated Tax Drag
+              </p>
+              <p
+                id="kpiTaxLoss"
+                class="text-xl font-semibold text-amber-700 mt-1"
+              >
+                $0.00
+              </p>
+              <p class="text-xs text-slate-500 mt-1">
+                Tax liability on investment growth.
+              </p>
+            </div>
+
+            <div
+              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
+            >
+              <p class="text-xs font-medium text-rose-600 uppercase">
+                Inflation Erosion Drag
+              </p>
+              <p
+                id="kpiInflationLoss"
+                class="text-xl font-semibold text-rose-700 mt-1"
+              >
+                $0.00
+              </p>
+              <p class="text-xs text-slate-500 mt-1">
+                Purchasing power lost to inflation.
+              </p>
+            </div>
+          </div>
+
+          <!-- Chart Container -->
+          <div
+            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"
+          >
+            <h2 class="text-lg font-semibold text-slate-900 mb-4">
+              Growth Trajectory & Wealth Retention
+            </h2>
+            <div class="relative h-80">
+              <canvas id="growthChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Milestone Table -->
+      <div
+        class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 overflow-x-auto"
+      >
+        <h2 class="text-lg font-semibold text-slate-900 mb-4">
+          Time Horizon Breakdown
+        </h2>
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr
+              class="border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider"
+            >
+              <th class="py-3 px-4">Period</th>
+              <th class="py-3 px-4">Total Contributed</th>
+              <th class="py-3 px-4">Nominal Value</th>
+              <th class="py-3 px-4 text-slate-500">Uninvested Cash (Real $)</th>
+              <th class="py-3 px-4 text-amber-600">Estimated Tax Drag</th>
+              <th class="py-3 px-4 text-rose-600">Inflation Drag</th>
+              <th class="py-3 px-4 text-emerald-600">Net Real Wealth</th>
+              <th class="py-3 px-4 text-emerald-700">
+                Net Annual Yield (CAGR)
+              </th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-100 text-sm">
+            <!-- Populated dynamically via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Calculation Script -->
+    <script>
+      let growthChart = null;
+
+      function formatCurrency(val) {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+        }).format(val);
+      }
+
+      // Newton-Raphson method to calculate internal rate of return / CAGR for recurring contributions
+      function calculateEffectiveCAGR(netRealValue, initial, monthly, years) {
+        if (years === 0 || netRealValue <= 0) return 0;
+
+        // Single lump sum CAGR formula
+        if (monthly === 0) {
+          if (initial <= 0) return 0;
+          return (Math.pow(netRealValue / initial, 1 / years) - 1) * 100;
+        }
+
+        // Recurring cash flows solve for r: PV + sum(PMT / (1+r)^t) = NetRealValue
+        let rate = 0.05; // initial guess
+        for (let iter = 0; iter < 20; iter++) {
+          const mRate = rate / 12;
+          const mTotal = years * 12;
+          let fv = initial * Math.pow(1 + mRate, mTotal);
+          if (mRate !== 0) {
+            fv += monthly * ((Math.pow(1 + mRate, mTotal) - 1) / mRate);
+          } else {
+            fv += monthly * mTotal;
+          }
+
+          const diff = fv - netRealValue;
+          if (Math.abs(diff) < 0.001) break;
+
+          // Derivative for Newton-Raphson step
+          let dfv = (initial * mTotal * Math.pow(1 + mRate, mTotal - 1)) / 12;
+          if (mRate !== 0) {
+            const term = Math.pow(1 + mRate, mTotal);
+            dfv +=
+              (monthly / 12) *
+              ((mTotal * Math.pow(1 + mRate, mTotal - 1) * mRate - (term - 1)) /
+                (mRate * mRate));
+          }
+
+          if (dfv === 0) break;
+          rate = rate - diff / dfv;
+        }
+        return rate * 100;
+      }
+
+      function calculateResults() {
+        const initial =
+          parseFloat(document.getElementById("initial").value) || 0;
+        const monthly =
+          parseFloat(document.getElementById("monthly").value) || 0;
+        const annualRate =
+          (parseFloat(document.getElementById("rate").value) || 0) / 100;
+        const inflationRate =
+          (parseFloat(document.getElementById("inflation").value) || 0) / 100;
+        const taxRate =
+          (parseFloat(document.getElementById("taxRate").value) || 0) / 100;
+        const maxYears = parseInt(document.getElementById("years").value) || 30;
+
+        const monthlyRate = annualRate / 12;
+        const labels = [];
+        const nominalData = [];
+        const netRealData = [];
+        const cashRealData = [];
+        const taxLossData = [];
+        const inflationLossData = [];
+        const tableRows = [];
+
+        let checkpoints = [];
+        for (let y = 1; y <= maxYears; y++) {
+          if (
+            maxYears <= 5 ||
+            y === 0.5 ||
+            y === 1 ||
+            y % Math.ceil(maxYears / 10) === 0 ||
+            y === maxYears
+          ) {
+            checkpoints.push(y);
+          }
+        }
+
+        for (let t = 0; t <= maxYears; t++) {
+          labels.push(`Year ${t}`);
+          const months = t * 12;
+
+          const nominalFV =
+            monthlyRate > 0
+              ? initial * Math.pow(1 + monthlyRate, months) +
+                monthly *
+                  ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate)
+              : initial + monthly * 12 * t;
+
+          const totalContributed = initial + monthly * 12 * t;
+          const nominalGains = Math.max(0, nominalFV - totalContributed);
+          const taxLiability = nominalGains * taxRate;
+          const afterTaxFV = nominalFV - taxLiability;
+
+          // Inflation discounting factor
+          const inflationDiscount = Math.pow(1 + inflationRate, t);
+          const netRealWealth = afterTaxFV / inflationDiscount;
+
+          // Uninvested cash real purchasing power
+          const cashRealWealth = totalContributed / inflationDiscount;
+
+          const taxDrag = taxLiability;
+          const inflationDrag = Math.max(
+            0,
+            nominalFV - netRealWealth - taxDrag,
+          );
+
+          // Calculate Net Effective Return Rate (CAGR)
+          const netEffectiveCAGR = calculateEffectiveCAGR(
+            netRealWealth,
+            initial,
+            monthly,
+            t,
+          );
+
+          nominalData.push(nominalFV);
+          netRealData.push(netRealWealth);
+          cashRealData.push(cashRealWealth);
+          taxLossData.push(taxDrag);
+          inflationLossData.push(inflationDrag);
+
+          if (checkpoints.includes(t) || t === 0) {
+            tableRows.push({
+              period: `Year ${t}`,
+              contributed: totalContributed,
+              nominal: nominalFV,
+              cashReal: cashRealWealth,
+              tax: taxDrag,
+              inflation: inflationDrag,
+              netReal: netRealWealth,
+              cagr: netEffectiveCAGR,
+            });
+          }
+        }
+
+        // Update KPI summary cards with final year values
+        const finalIdx = nominalData.length - 1;
+        const finalNetReal = netRealData[finalIdx];
+        const finalCAGR = calculateEffectiveCAGR(
+          finalNetReal,
+          initial,
+          monthly,
+          maxYears,
+        );
+
+        document.getElementById("kpiNominal").innerText = formatCurrency(
+          nominalData[finalIdx],
+        );
+        document.getElementById("kpiNetReal").innerText =
+          formatCurrency(finalNetReal);
+        document.getElementById("kpiRealRate").innerText =
+          `${finalCAGR.toFixed(2)}%`;
+        document.getElementById("kpiCashReal").innerText = formatCurrency(
+          cashRealData[finalIdx],
+        );
+        document.getElementById("kpiTaxLoss").innerText =
+          `- ${formatCurrency(taxLossData[finalIdx])}`;
+        document.getElementById("kpiInflationLoss").innerText =
+          `- ${formatCurrency(inflationLossData[finalIdx])}`;
+
+        // Update Table Body
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+        tableRows.forEach((row) => {
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50 transition-colors";
+          tr.innerHTML = `
+                    <td class="py-3 px-4 font-medium text-slate-800">${row.period}</td>
+                    <td class="py-3 px-4 text-slate-600">${formatCurrency(row.contributed)}</td>
+                    <td class="py-3 px-4 font-semibold text-slate-900">${formatCurrency(row.nominal)}</td>
+                    <td class="py-3 px-4 text-slate-500">${formatCurrency(row.cashReal)}</td>
+                    <td class="py-3 px-4 text-amber-600 font-medium">- ${formatCurrency(row.tax)}</td>
+                    <td class="py-3 px-4 text-rose-600 font-medium">- ${formatCurrency(row.inflation)}</td>
+                    <td class="py-3 px-4 text-emerald-600 font-bold">${formatCurrency(row.netReal)}</td>
+                    <td class="py-3 px-4 text-emerald-700 font-semibold">${row.period === "Year 0" ? "0.00%" : `${row.cagr.toFixed(2)}%`}</td>
+                `;
+          tbody.appendChild(tr);
+        });
+
+        // Render Chart
+        updateChart(
+          labels,
+          nominalData,
+          netRealData,
+          cashRealData,
+          taxLossData,
+          inflationLossData,
+        );
+      }
+
+      function updateChart(
+        labels,
+        nominal,
+        netReal,
+        cashReal,
+        taxLoss,
+        inflationLoss,
+      ) {
+        const ctx = document.getElementById("growthChart").getContext("2d");
+
+        if (growthChart) {
+          growthChart.destroy();
+        }
+
+        growthChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Nominal Portfolio Value",
+                data: nominal,
+                borderColor: "#3b82f6", // blue
+                backgroundColor: "rgba(59, 130, 246, 0.05)",
+                fill: true,
+                tension: 0.2,
+              },
+              {
+                label: "Net Real Wealth (After Tax & Inflation)",
+                data: netReal,
+                borderColor: "#10b981", // emerald
+                backgroundColor: "transparent",
+                borderWidth: 2,
+                tension: 0.2,
+              },
+              {
+                label: "Uninvested Cash (Real Purchasing Power)",
+                data: cashReal,
+                borderColor: "#64748b", // slate gray
+                backgroundColor: "transparent",
+                borderDash: [5, 5],
+                tension: 0.2,
+              },
+              {
+                label: "Estimated Tax Drag",
+                data: taxLoss,
+                borderColor: "#f59e0b", // amber
+                backgroundColor: "transparent",
+                borderDash: [4, 4],
+                tension: 0.2,
+              },
+              {
+                label: "Inflation Purchasing Power Drag",
+                data: inflationLoss,
+                borderColor: "#f43f5e", // rose
+                backgroundColor: "transparent",
+                borderDash: [2, 2],
+                tension: 0.2,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: { boxWidth: 12, font: { size: 11 } },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    return `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`;
+                  },
+                },
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function (value) {
+                    if (value >= 1000) {
+                      return "$" + (value / 1000).toFixed(0) + "k";
+                    }
+                    return "$" + value;
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Attach event listeners to inputs for live updates
+      ["initial", "monthly", "rate", "inflation", "taxRate", "years"].forEach(
+        (id) => {
+          document
+            .getElementById(id)
+            .addEventListener("input", calculateResults);
+        },
+      );
+
+      // Initial calculation on load
+      calculateResults();
+    </script>
+  </body>
+</html>

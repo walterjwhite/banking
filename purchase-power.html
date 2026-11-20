@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1f6f4a" />
+    <title>Break-Even & Discretionary Cash Calculator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body class="bg-slate-50 text-slate-800 font-sans p-4 md:p-8">
+    <nav class="max-w-6xl mx-auto mb-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+      <a href="./index.html" class="text-blue-600 hover:underline"
+        >&larr; Family Bank</a
+      >
+      <a href="./compounding.html" class="text-blue-600 hover:underline"
+        >Compounding Calculator</a
+      >
+      <a href="./purchase-power.html" class="font-semibold text-slate-900"
+        >Purchase Power</a
+      >
+    </nav>
+    <div class="max-w-6xl mx-auto space-y-6">
+      <!-- Header -->
+      <header
+        class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"
+      >
+        <h1 class="text-2xl font-bold text-slate-900">
+          Dynamic Break-Even & Purchasing Power Calculator
+        </h1>
+        <p class="text-sm text-slate-600 mt-1">
+          Calculate true discretionary cash (positive surplus or negative
+          deficit) across eras without forced percentage limits. Defaults to
+          Pittsburgh metro median household income: $18,800 (1980 Census) vs
+          $75,762 (ACS 2020&ndash;24).
+        </p>
+      </header>
+
+      <!-- Main Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Controls Panel -->
+        <div
+          class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 lg:col-span-1"
+        >
+          <h2 class="text-lg font-semibold text-slate-900 border-b pb-2">
+            Household Gross Salary Inputs
+          </h2>
+
+          <div>
+            <label
+              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
+              >Then Household Gross ($)</label
+            >
+            <input
+              type="number"
+              id="thenGross"
+              value="18800"
+              step="1000"
+              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <span class="text-[10px] text-slate-400"
+              >Pittsburgh metro median, 1980 Census</span
+            >
+          </div>
+
+          <div>
+            <label
+              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
+              >Now Household Gross ($)</label
+            >
+            <input
+              type="number"
+              id="nowGross"
+              value="75762"
+              step="5000"
+              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+            <span class="text-[10px] text-slate-400"
+              >Pittsburgh metro median, ACS 2020&ndash;24</span
+            >
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-2">
+            <div>
+              <label
+                class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
+                >Then Earners</label
+              >
+              <select
+                id="thenEarners"
+                class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                <option value="1" selected>1 Earner</option>
+                <option value="2">2 Earners</option>
+              </select>
+            </div>
+            <div>
+              <label
+                class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
+                >Now Earners</label
+              >
+              <select
+                id="nowEarners"
+                class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              >
+                <option value="1">1 Earner</option>
+                <option value="2" selected>2 Earners</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t">
+            <button
+              onclick="resetDefaults()"
+              class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-lg transition-colors"
+            >
+              Reset Default Scenario
+            </button>
+          </div>
+        </div>
+
+        <!-- Summary Cards & Chart -->
+        <div class="space-y-6 lg:col-span-2">
+          <!-- KPI Cards Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div
+              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
+            >
+              <p class="text-xs font-medium text-slate-500 uppercase">
+                Then Discretionary Cash
+              </p>
+              <p id="kpiThenDisc" class="text-xl font-bold text-blue-600 mt-1">
+                $7,030
+              </p>
+              <p id="kpiThenPct" class="text-xs text-slate-500 mt-1">
+                37.0% of Gross
+              </p>
+            </div>
+
+            <div
+              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
+            >
+              <p class="text-xs font-medium text-slate-500 uppercase">
+                Now Discretionary Cash
+              </p>
+              <p
+                id="kpiNowDisc"
+                class="text-xl font-bold text-emerald-600 mt-1"
+              >
+                $0
+              </p>
+              <p id="kpiNowPct" class="text-xs text-slate-500 mt-1">
+                0.0% of Gross
+              </p>
+            </div>
+
+            <div
+              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 bg-slate-100/50"
+            >
+              <p class="text-xs font-medium text-slate-500 uppercase">
+                Target Break-Even Income
+              </p>
+              <p
+                id="kpiBreakEven"
+                class="text-xl font-bold text-purple-700 mt-1"
+              >
+                $124,800
+              </p>
+              <p class="text-xs text-slate-500 mt-1">
+                To match 1980 real purchasing power
+              </p>
+            </div>
+          </div>
+
+          <!-- Stacked Bar Chart -->
+          <div
+            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"
+          >
+            <h2 class="text-lg font-semibold text-slate-900 mb-1">
+              Budget Allocation Breakdown
+            </h2>
+            <p class="text-xs text-slate-500 mb-4">
+              Visualizing fixed expenses, taxes, and net discretionary cash (or
+              deficit).
+            </p>
+            <div class="relative h-72">
+              <canvas id="budgetChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Line Item Table -->
+      <div
+        class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 overflow-x-auto"
+      >
+        <h2 class="text-lg font-semibold text-slate-900 mb-4">
+          Line-Item Cost Breakdown
+        </h2>
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr
+              class="border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider"
+            >
+              <th class="py-3 px-3">Budget Category</th>
+              <th class="py-3 px-3">Then ($ Annual)</th>
+              <th class="py-3 px-3">Then %</th>
+              <th class="py-3 px-3">Now ($ Annual)</th>
+              <th class="py-3 px-3">Now %</th>
+              <th class="py-3 px-3">Net Cost Shift</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-100 text-sm">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+      let budgetChart = null;
+
+      function formatCurrency(val) {
+        const prefix = val < 0 ? "-$" : "$";
+        return (
+          prefix +
+          new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(
+            Math.abs(val),
+          )
+        );
+      }
+
+      function resetDefaults() {
+        document.getElementById("thenGross").value = 18800;
+        document.getElementById("nowGross").value = 75762;
+        document.getElementById("thenEarners").value = 1;
+        document.getElementById("nowEarners").value = 2;
+        calculateAndRender();
+      }
+
+      function calculateAndRender() {
+        const thenGross =
+          parseFloat(document.getElementById("thenGross").value) || 0;
+        const nowGross =
+          parseFloat(document.getElementById("nowGross").value) || 0;
+        const thenEarners =
+          parseInt(document.getElementById("thenEarners").value) || 1;
+        const nowEarners =
+          parseInt(document.getElementById("nowEarners").value) || 2;
+
+        // 1980 Expenses (Fixed baseline proportioned to $18,800)
+        const thenTaxes = thenGross * 0.18;
+        const thenPension = 0; // Employer funded
+        const thenHealth = thenGross * 0.03;
+        const thenHousing = thenGross * 0.24;
+        const thenEssentials = thenGross * 0.18;
+        const thenFriction = 0; // Single earner
+
+        const thenTotalExpenses =
+          thenTaxes +
+          thenPension +
+          thenHealth +
+          thenHousing +
+          thenEssentials +
+          thenFriction;
+        const thenDiscretionary = thenGross - thenTotalExpenses;
+
+        // Modern Expenses (Fixed cost inflation rates + progressive taxes)
+        // Effective Tax rate (scales smoothly with income)
+        let taxRate = 0.15;
+        if (nowGross > 60000) taxRate = 0.2;
+        if (nowGross > 120000) taxRate = 0.24;
+        if (nowGross > 250000) taxRate = 0.28;
+
+        const nowTaxes = nowGross * taxRate;
+
+        // Fixed cost liabilities for middle-class standard in 2026 dollars:
+        const nowPension = Math.min(nowGross * 0.12, 23500); // 12% max 401k cap
+        const nowHealth = 9500; // Fixed avg family premium + deductible
+        const nowHousing = Math.max(24000, nowGross * 0.28); // Housing cost floor + scaling
+        const nowEssentials = 14000; // Food, utilities, auto
+
+        // Dual Earner Friction
+        const nowFriction = nowEarners === 2 ? 14000 : 0; // Childcare + 2nd car overhead
+
+        const nowTotalExpenses =
+          nowTaxes +
+          nowPension +
+          nowHealth +
+          nowHousing +
+          nowEssentials +
+          nowFriction;
+        const nowDiscretionary = nowGross - nowTotalExpenses;
+
+        // Target Break-Even Salary calculation
+        // Solves for income needed to yield $29,950 real discretionary cash buffer
+        const targetRealBuffer = 29950;
+        const fixedOverhead =
+          9500 + 24000 + 14000 + (nowEarners === 2 ? 14000 : 0);
+        const breakEvenSalary =
+          (targetRealBuffer + fixedOverhead) / (1.0 - 0.22 - 0.1);
+
+        // Update KPI Cards
+        document.getElementById("kpiThenDisc").innerText =
+          formatCurrency(thenDiscretionary);
+        document.getElementById("kpiThenPct").innerText =
+          `${thenGross > 0 ? ((thenDiscretionary / thenGross) * 100).toFixed(1) : 0}% of Gross`;
+
+        const kpiNowEl = document.getElementById("kpiNowDisc");
+        kpiNowEl.innerText = formatCurrency(nowDiscretionary);
+        kpiNowEl.className = `text-xl font-bold mt-1 ${nowDiscretionary >= 0 ? "text-emerald-600" : "text-rose-600"}`;
+
+        document.getElementById("kpiNowPct").innerText =
+          `${nowGross > 0 ? ((nowDiscretionary / nowGross) * 100).toFixed(1) : 0}% of Gross`;
+        document.getElementById("kpiBreakEven").innerText =
+          formatCurrency(breakEvenSalary);
+
+        // Table Data
+        const items = [
+          {
+            name: "Mandatory Taxes (Income, FICA, State)",
+            thenVal: thenTaxes,
+            nowVal: nowTaxes,
+            color: "#94a3b8",
+          },
+          {
+            name: "Self-Funded Retirement / 401(k)",
+            thenVal: thenPension,
+            nowVal: nowPension,
+            color: "#f59e0b",
+          },
+          {
+            name: "Health Insurance Premiums & Out-of-Pocket",
+            thenVal: thenHealth,
+            nowVal: nowHealth,
+            color: "#ef4444",
+          },
+          {
+            name: "Housing (Mortgage/Rent, Taxes, Ins.)",
+            thenVal: thenHousing,
+            nowVal: nowHousing,
+            color: "#8b5cf6",
+          },
+          {
+            name: "Groceries, Utilities & Basic Needs",
+            thenVal: thenEssentials,
+            nowVal: nowEssentials,
+            color: "#06b6d4",
+          },
+          {
+            name: "Dual-Earner Friction (Childcare + 2nd Car)",
+            thenVal: thenFriction,
+            nowVal: nowFriction,
+            color: "#ec4899",
+          },
+        ];
+
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+
+        items.forEach((c) => {
+          const thenPct = thenGross > 0 ? (c.thenVal / thenGross) * 100 : 0;
+          const nowPct = nowGross > 0 ? (c.nowVal / nowGross) * 100 : 0;
+          const diffVal = c.nowVal - c.thenVal;
+
+          const tr = document.createElement("tr");
+          tr.className = "hover:bg-slate-50 transition-colors";
+          tr.innerHTML = `
+                    <td class="py-3 px-3 font-medium text-slate-800 flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${c.color}"></span>
+                        ${c.name}
+                    </td>
+                    <td class="py-3 px-3 text-slate-600">${formatCurrency(c.thenVal)}</td>
+                    <td class="py-3 px-3 text-slate-500">${thenPct.toFixed(1)}%</td>
+                    <td class="py-3 px-3 text-slate-600">${formatCurrency(c.nowVal)}</td>
+                    <td class="py-3 px-3 text-slate-500">${nowPct.toFixed(1)}%</td>
+                    <td class="py-3 px-3 font-semibold ${diffVal > 0 ? "text-rose-600" : "text-emerald-600"}">
+                        ${diffVal > 0 ? "+" : ""}${formatCurrency(diffVal)}
+                    </td>
+                `;
+          tbody.appendChild(tr);
+        });
+
+        // Discretionary Row
+        const discTr = document.createElement("tr");
+        discTr.className = "bg-slate-100 font-bold border-t-2 border-slate-300";
+        const nowDiscPct =
+          nowGross > 0 ? (nowDiscretionary / nowGross) * 100 : 0;
+        const thenDiscPct =
+          thenGross > 0 ? (thenDiscretionary / thenGross) * 100 : 0;
+
+        discTr.innerHTML = `
+                <td class="py-3 px-3 ${nowDiscretionary >= 0 ? "text-emerald-800" : "text-rose-800"}">DISCRETIONARY "FREE-TO-SPEND" CASH</td>
+                <td class="py-3 px-3 text-blue-700">${formatCurrency(thenDiscretionary)}</td>
+                <td class="py-3 px-3 text-blue-700">${thenDiscPct.toFixed(1)}%</td>
+                <td class="py-3 px-3 ${nowDiscretionary >= 0 ? "text-emerald-700" : "text-rose-700"}">${formatCurrency(nowDiscretionary)}</td>
+                <td class="py-3 px-3 ${nowDiscretionary >= 0 ? "text-emerald-700" : "text-rose-700"}">${nowDiscPct.toFixed(1)}%</td>
+                <td class="py-3 px-3 text-slate-700">${formatCurrency(nowDiscretionary - thenDiscretionary)}</td>
+            `;
+        tbody.appendChild(discTr);
+
+        renderChart(
+          items,
+          thenDiscretionary,
+          nowDiscretionary,
+          thenEarners,
+          nowEarners,
+        );
+      }
+
+      function renderChart(items, thenDisc, nowDisc, thenEarners, nowEarners) {
+        const ctx = document.getElementById("budgetChart").getContext("2d");
+
+        const datasets = items.map((c) => ({
+          label: c.name,
+          data: [Math.round(c.thenVal), Math.round(c.nowVal)],
+          backgroundColor: c.color,
+        }));
+
+        // Add discretionary cash layer
+        datasets.push({
+          label: "Discretionary Surplus (or Deficit)",
+          data: [Math.round(thenDisc), Math.round(nowDisc)],
+          backgroundColor: nowDisc >= 0 ? "#10b981" : "#f43f5e",
+        });
+
+        if (budgetChart) {
+          budgetChart.destroy();
+        }
+
+        budgetChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: [
+              `Then (${thenEarners} Earner)`,
+              `Now (${nowEarners} Earners)`,
+            ],
+            datasets: datasets,
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { stacked: true },
+              y: {
+                stacked: true,
+                ticks: {
+                  callback: function (value) {
+                    return "$" + (value / 1000).toFixed(0) + "k";
+                  },
+                },
+              },
+            },
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: { boxWidth: 10, font: { size: 10 } },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    return `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`;
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      ["thenGross", "nowGross", "thenEarners", "nowEarners"].forEach((id) => {
+        document
+          .getElementById(id)
+          .addEventListener("input", calculateAndRender);
+      });
+
+      calculateAndRender();
+    </script>
+  </body>
+</html>
