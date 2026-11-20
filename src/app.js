@@ -82,7 +82,15 @@ function failed(error) {
   const cached = readCached();
   if (cached) paint(cached, "offline");
   else nodes.freshness.textContent = "no access";
-  pairing.show(error.message ?? "Could not reach the ledger.");
+  pairing.show(`${error.message ?? "Could not reach the ledger."}${savedKeyNote()}`);
+}
+
+function savedKeyNote() {
+  try {
+    return readToken() ? " The saved key is still on this device — press Connect to retry it, or paste a new pairing link." : "";
+  } catch {
+    return "";
+  }
 }
 
 function paint(snapshot, state) {

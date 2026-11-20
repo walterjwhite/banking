@@ -1,10 +1,22 @@
-import { looksLikeToken, pairingFromText, saveRepo, saveRole, saveToken } from "./token.js";
+import { looksLikeToken, pairingFromText, readToken, saveRepo, saveRole, saveToken } from "./token.js";
 
 /** The connect panel shown when the device holds no key. */
 export function createPairing({ section, form, input, hint, onConnect }) {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const pairing = pairingFromText(input.value);
+    const text = input.value.trim();
+    if (!text) {
+      const stored = storedToken();
+      if (stored) {
+        input.value = "";
+        hint.textContent = "";
+        onConnect(stored);
+        return;
+      }
+      hint.textContent = "Paste the pairing link a parent sent, or the key itself.";
+      return;
+    }
+    const pairing = pairingFromText(text);
     if (!pairing || !looksLikeToken(pairing.token)) {
       hint.textContent = "Paste the pairing link a parent sent, or the key itself.";
       return;
@@ -21,6 +33,14 @@ export function createPairing({ section, form, input, hint, onConnect }) {
     hint.textContent = "";
     onConnect(pairing.token);
   });
+
+  function storedToken() {
+    try {
+      return readToken();
+    } catch {
+      return null;
+    }
+  }
 
   return {
     show(message = "") {

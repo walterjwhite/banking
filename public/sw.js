@@ -1,4 +1,4 @@
-const CACHE = "family-bank-v6";
+const CACHE = "family-bank-v7";
 const SHELL = [
   "./",
   "./index.html",
