@@ -1,0 +1,21 @@
+{
+  "name": "family-bank-shell",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Data-free family bank PWA shell; reads the private ledger with a per-device key",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/serve.mjs dist",
+    "icons": "node scripts/make-icons.mjs",
+    "qr": "node scripts/token-qr.mjs",
+    "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "qrcode": "^1.5.4"
+  }
+}

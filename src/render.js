@@ -1,0 +1,63 @@
+import { money, percent, signed } from "./format.js";
+
+const RECENT_LIMIT = 20;
+
+export function renderAccounts(node, accounts) {
+  node.replaceChildren(...accounts.map(accountCard));
+}
+
+function accountCard(account) {
+  const card = document.createElement("article");
+  card.className = "card";
+  card.append(
+    line("h2", account.name),
+    line("p", money(account.balance), "balance"),
+    line(
+      "p",
+      `${account.type} · ${percent(account.annual_rate)} a year · interest to ${account.last_interest ?? "—"}`,
+      "meta",
+    ),
+  );
+  return card;
+}
+
+export function renderActivity(node, transactions) {
+  if (transactions.length === 0) {
+    node.replaceChildren(line("li", "No transactions yet.", "meta"));
+    return;
+  }
+  node.replaceChildren(...transactions.slice(0, RECENT_LIMIT).map(activityRow));
+}
+
+function activityRow(transaction) {
+  const item = document.createElement("li");
+  item.className = `row ${transaction.type}`;
+  item.append(
+    line(
+      "span",
+      `${transaction.account} · ${transaction.description}`,
+      "detail",
+    ),
+    line("span", signed(transaction.amount), "amount"),
+    line("time", transaction.datetime, "meta"),
+  );
+  return item;
+}
+
+export function renderAccountOptions(select, accounts) {
+  select.replaceChildren(
+    ...accounts.map((account) => {
+      const option = document.createElement("option");
+      option.value = account.name;
+      option.textContent = account.name;
+      return option;
+    }),
+  );
+}
+
+function line(tag, text, className) {
+  const element = document.createElement(tag);
+  element.textContent = text;
+  if (className) element.className = className;
+  return element;
+}
