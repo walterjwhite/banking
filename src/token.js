@@ -1,4 +1,4 @@
-import { REPO_KEY, ROLE_KEY, TOKEN_KEY } from "./config.js";
+import { ACCOUNT_KEY, REPO_KEY, ROLE_KEY, TOKEN_KEY } from "./config.js";
 
 const REPO_SHAPE = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 
@@ -6,17 +6,19 @@ const REPO_SHAPE = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 export function pairingFromText(text) {
   const value = String(text ?? "").trim();
   if (!value) return null;
-  if (looksLikeToken(value)) return { token: value, role: "kid", repo: null };
+  if (looksLikeToken(value)) return { token: value, role: "kid", repo: null, account: null };
   const hash = value.includes("#") ? value.slice(value.indexOf("#") + 1) : value;
   if (!hash.includes("token=")) return null;
   const params = new URLSearchParams(hash.replace(/^#/, ""));
   const token = (params.get("token") ?? "").trim();
   if (!token) return null;
   const repo = (params.get("repo") ?? "").trim();
+  const account = (params.get("account") ?? "").trim();
   return {
     token,
     role: params.get("role") === "parent" ? "parent" : "kid",
     repo: looksLikeRepo(repo) ? repo : null,
+    account: account || null,
   };
 }
 
@@ -35,6 +37,7 @@ export function claimHashToken(hash, { storage, onClaimed } = {}) {
   if (storage) {
     saveToken(claimed.token, storage);
     saveRole(claimed.role, storage);
+    saveAccount(claimed.role === "parent" ? null : claimed.account, storage);
     if (claimed.repo) saveRepo(claimed.repo, storage);
   }
   if (onClaimed) onClaimed(claimed.token);
@@ -61,6 +64,7 @@ export function clearToken(storage = globalThis.localStorage) {
   storage?.removeItem(TOKEN_KEY);
   storage?.removeItem(ROLE_KEY);
   storage?.removeItem(REPO_KEY);
+  storage?.removeItem(ACCOUNT_KEY);
 }
 
 export function readRole(storage = globalThis.localStorage) {
@@ -80,11 +84,23 @@ export function saveRepo(repo, storage = globalThis.localStorage) {
   storage?.setItem(REPO_KEY, String(repo).trim());
 }
 
-export function pairingUrl(siteUrl, token, role = "kid", repo = null) {
+export function readAccount(storage = globalThis.localStorage) {
+  const account = storage?.getItem(ACCOUNT_KEY);
+  return account ? account.trim() : null;
+}
+
+export function saveAccount(account, storage = globalThis.localStorage) {
+  const value = String(account ?? "").trim();
+  if (value) storage?.setItem(ACCOUNT_KEY, value);
+  else storage?.removeItem(ACCOUNT_KEY);
+}
+
+export function pairingUrl(siteUrl, token, role = "kid", repo = null, account = null) {
   const url = new URL(siteUrl);
   url.hash = `token=${encodeURIComponent(token)}`;
   if (role === "parent") url.hash += "&role=parent";
   if (repo) url.hash += `&repo=${encodeURIComponent(repo)}`;
+  if (account) url.hash += `&account=${encodeURIComponent(account)}`;
   return url.toString();
 }
 

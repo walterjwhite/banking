@@ -66,6 +66,34 @@ main {
   gap: 0.8rem;
 }
 
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tab {
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.tab.active {
+  background: var(--green);
+  color: #fff;
+}
+
+.view {
+  display: grid;
+  gap: 1.1rem;
+}
+
+#transactions-more {
+  margin-top: 0.8rem;
+}
+
 .card,
 .request,
 .activity {

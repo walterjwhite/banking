@@ -1,4 +1,4 @@
-import { looksLikeToken, pairingFromText, readToken, saveRepo, saveRole, saveToken } from "./token.js";
+import { looksLikeToken, pairingFromText, readToken, saveAccount, saveRepo, saveRole, saveToken } from "./token.js";
 
 /** The connect panel shown when the device holds no key. */
 export function createPairing({ section, form, input, hint, onConnect }) {
@@ -24,6 +24,7 @@ export function createPairing({ section, form, input, hint, onConnect }) {
     try {
       saveToken(pairing.token);
       saveRole(pairing.role);
+      saveAccount(pairing.role === "parent" ? null : pairing.account);
       if (pairing.repo) saveRepo(pairing.repo);
     } catch {
       setHint(hint, "This browser blocks storage, so the key cannot be kept.", true);

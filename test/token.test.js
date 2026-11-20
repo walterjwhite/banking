@@ -8,6 +8,7 @@ import {
   pairingFromHash,
   pairingFromText,
   pairingUrl,
+  readAccount,
   readRepo,
   readRole,
   tokenFromHash,
@@ -32,14 +33,17 @@ test("tokenFromHash reads the key a QR delivers", () => {
 });
 
 test("pairingFromText accepts a whole link, a hash, or a bare key", () => {
-  const link = "https://walterjwhite.github.io/banking/#token=github_pat_abc&role=parent&repo=example-org%2Fexample-ledger";
+  const link = "https://walterjwhite.github.io/banking/#token=github_pat_abc&role=parent&repo=example-org%2Fexample-ledger&account=Kid%20A";
   assert.equal(pairingFromText(link).token, "github_pat_abc");
   assert.equal(pairingFromText(link).role, "parent");
   assert.equal(pairingFromText(link).repo, "example-org/example-ledger");
+  assert.equal(pairingFromText(link).account, "Kid A");
   assert.equal(pairingFromText("#token=github_pat_abc").role, "kid");
   assert.equal(pairingFromText("#token=github_pat_abc").repo, null);
+  assert.equal(pairingFromText("#token=github_pat_abc").account, null);
   assert.equal(pairingFromText("github_pat_11ABCDEFG0123456789").role, "kid");
   assert.equal(pairingFromText("github_pat_11ABCDEFG0123456789").repo, null);
+  assert.equal(pairingFromText("github_pat_11ABCDEFG0123456789").account, null);
   assert.equal(pairingFromText("hello there"), null);
   assert.equal(pairingFromText(""), null);
 });
@@ -49,13 +53,14 @@ test("pairingFromHash marks only approving devices as parents", () => {
   assert.equal(pairingFromHash("#token=github_pat_abc&role=parent").role, "parent");
   assert.equal(pairingFromHash("#token=github_pat_abc&role=owner").role, "kid");
   assert.equal(pairingFromHash("#token=github_pat_abc&repo=example-org%2Fexample-ledger").repo, "example-org/example-ledger");
+  assert.equal(pairingFromHash("#token=github_pat_abc&account=Kid%20A").account, "Kid A");
   assert.equal(pairingFromHash("#role=parent"), null);
 });
 
 test("claimHashToken stores the key, role and repo once and strips them", () => {
   const storage = memoryStorage();
   let stripped = 0;
-  const token = claimHashToken("#token=github_pat_abc&role=parent&repo=example-org%2Fexample-ledger", {
+  const token = claimHashToken("#token=github_pat_abc&repo=example-org%2Fexample-ledger&account=Kid%20A", {
     storage,
     onClaimed: () => {
       stripped += 1;
@@ -63,17 +68,19 @@ test("claimHashToken stores the key, role and repo once and strips them", () => 
   });
   assert.equal(token, "github_pat_abc");
   assert.equal(storage.getItem("family-bank.token"), "github_pat_abc");
-  assert.equal(storage.getItem("family-bank.role"), "parent");
+  assert.equal(storage.getItem("family-bank.role"), "kid");
   assert.equal(readRepo(storage), "example-org/example-ledger");
+  assert.equal(readAccount(storage), "Kid A");
   assert.equal(stripped, 1);
   assert.equal(claimHashToken("", { storage }), null);
   assert.equal(stripped, 1);
 });
 
-test("readRole defaults to kid and readRepo defaults to null", () => {
+test("readRole defaults to kid and readRepo/readAccount default to null", () => {
   const storage = memoryStorage();
   assert.equal(readRole(storage), "kid");
   assert.equal(readRepo(storage), null);
+  assert.equal(readAccount(storage), null);
 });
 
 test("pairingUrl adds role and repo only when asked", () => {
@@ -88,6 +95,10 @@ test("pairingUrl adds role and repo only when asked", () => {
   assert.equal(
     pairingUrl("https://example.test/banking/", "github_pat_abc", "kid", "example-org/example-ledger"),
     "https://example.test/banking/#token=github_pat_abc&repo=example-org%2Fexample-ledger",
+  );
+  assert.equal(
+    pairingUrl("https://example.test/banking/", "github_pat_abc", "kid", "example-org/example-ledger", "Kid A"),
+    "https://example.test/banking/#token=github_pat_abc&repo=example-org%2Fexample-ledger&account=Kid%20A",
   );
 });
 

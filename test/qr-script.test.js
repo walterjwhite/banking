@@ -57,3 +57,24 @@ test("a parent QR is written and its key fingerprint printed", () => {
   assert.match(result.stdout, /key [0-9a-f]{8}/);
   assert.match(readFileSync(out, "utf8"), /<svg/);
 });
+
+test("a kid QR needs an account name", () => {
+  const result = run(["--out", path.join(work, "kid-no-account.svg")], {
+    BANK_TOKEN: TOKEN,
+    BANK_REPO: REPO,
+  });
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /account name/);
+});
+
+test("a kid QR carries the account name", () => {
+  const out = path.join(work, "kid.svg");
+
+  const result = run(["--account", "Kid A", "--out", out], { BANK_TOKEN: TOKEN, BANK_REPO: REPO });
+
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /account Kid A/);
+  assert.match(result.stdout, /as a kid device/);
+  assert.match(readFileSync(out, "utf8"), /<svg/);
+});

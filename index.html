@@ -27,6 +27,11 @@
     </header>
 
     <main>
+      <nav id="nav" class="tabs" hidden aria-label="Views">
+        <button id="nav-home" class="tab" type="button" aria-current="page">Home</button>
+        <button id="nav-transactions" class="tab" type="button">Transactions</button>
+      </nav>
+
       <section id="pairing" class="pairing" hidden>
         <h2>Connect this device</h2>
         <p class="meta">
@@ -51,45 +56,58 @@ installed app: Safari keeps its own storage, so a scanned link may not reach it.
         </form>
       </section>
 
-      <section id="accounts" class="accounts" aria-live="polite"></section>
+      <section id="view-home" class="view">
+        <section id="accounts" class="accounts" aria-live="polite"></section>
 
-      <section class="request">
-        <h2>Request a transaction</h2>
-        <form id="request-form">
-          <label>
-            Account
-            <select id="account" name="account" required></select>
-          </label>
-          <label>
-            Type
-            <select id="type" name="type" required>
-              <option value="deposit">Deposit</option>
-              <option value="withdrawal">Withdrawal</option>
-            </select>
-          </label>
-          <label>
-            Amount
-            <input id="amount" name="amount" inputmode="decimal" placeholder="25.00" required />
-          </label>
-          <label>
-            Description
-            <input id="description" name="description" placeholder="birthday money" required />
-          </label>
-          <button type="submit">Send to a parent</button>
-          <p id="request-hint" class="hint"></p>
-        </form>
+        <section class="request">
+          <h2>Request a transaction</h2>
+          <form id="request-form">
+            <label>
+              Account
+              <select id="account" name="account" required></select>
+            </label>
+            <label>
+              Type
+              <select id="type" name="type" required>
+                <option value="deposit">Deposit</option>
+                <option value="withdrawal">Withdrawal</option>
+              </select>
+            </label>
+            <label>
+              Amount
+              <input id="amount" name="amount" inputmode="decimal" placeholder="25.00" required />
+            </label>
+            <label>
+              Description
+              <input id="description" name="description" placeholder="birthday money" required />
+            </label>
+            <button type="submit">Send to a parent</button>
+            <p id="request-hint" class="hint"></p>
+          </form>
+        </section>
+
+        <section class="activity" id="pending-section">
+          <h2>Waiting for a parent</h2>
+          <ol id="pending" class="pending"></ol>
+          <p id="pending-status" class="hint"></p>
+        </section>
+
+        <section class="activity">
+          <h2>Recent activity</h2>
+          <ol id="activity"></ol>
+          <p class="meta">
+            <button id="activity-all" class="link" type="button" hidden>View all transactions</button>
+          </p>
+        </section>
       </section>
-      <section class="activity" id="pending-section">
-        <h2>Waiting for a parent</h2>
-        <ol id="pending" class="pending"></ol>
-        <p id="pending-status" class="hint"></p>
-      </section>
 
-
-
-      <section class="activity">
-        <h2>Recent activity</h2>
-        <ol id="activity"></ol>
+      <section id="view-transactions" class="view" hidden>
+        <section class="activity">
+          <h2>Transactions</h2>
+          <ol id="transactions"></ol>
+          <p id="transactions-status" class="hint"></p>
+          <button id="transactions-more" class="ghost" type="button" hidden>Show older</button>
+        </section>
       </section>
     </main>
 

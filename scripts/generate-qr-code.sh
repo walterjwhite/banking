@@ -8,6 +8,7 @@ PAT="${PAT:-}"
 REPO="${REPO:-${BANK_REPO:-}}"
 ROLE="${ROLE:-${BANK_ROLE:-kid}}"
 SITE="${SITE:-${BANK_SITE:-}}"
+ACCOUNT="${ACCOUNT:-${BANK_ACCOUNT:-}}"
 OUT="${OUT:-$root/token-qr.svg}"
 
 if ! command -v node >/dev/null 2>&1; then
@@ -44,9 +45,18 @@ if [[ -z "$REPO" ]]; then
   done
 fi
 
+if [[ "${ROLE,,}" != "parent" && -z "$ACCOUNT" ]]; then
+  while true; do
+    read -r -p "Kid account name (as in snapshot): " ACCOUNT
+    [[ -n "$ACCOUNT" ]] && break
+    echo "Account is required for kid pairings." >&2
+  done
+fi
+
 export BANK_TOKEN="$PAT"
 export BANK_REPO="$REPO"
 export BANK_ROLE="$ROLE"
+export BANK_ACCOUNT="$ACCOUNT"
 if [[ -n "$SITE" ]]; then
   export BANK_SITE="$SITE"
 fi

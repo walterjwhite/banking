@@ -6,4 +6,5 @@ export const SITE_URL = "https://walterjwhite.github.io/banking/";
 export const TOKEN_KEY = "family-bank.token";
 export const ROLE_KEY = "family-bank.role";
 export const REPO_KEY = "family-bank.repo";
+export const ACCOUNT_KEY = "family-bank.account";
 export const SNAPSHOT_CACHE_KEY = "family-bank.snapshot";

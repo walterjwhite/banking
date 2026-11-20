@@ -30,8 +30,9 @@ grants `read`.
 
    ```bash
    ./scripts/generate-qr-code.sh
-   # prompts for the PAT and repo; writes token-qr.svg
-   # or: BANK_TOKEN=github_pat_... BANK_REPO=owner/name npm run qr -- --url https://walterjwhite.github.io/banking/
+   # prompts for PAT, repo, and (for kids) the account name; writes token-qr.svg
+   # kid: BANK_TOKEN=... BANK_REPO=owner/name BANK_ACCOUNT="Kid A" npm run qr
+   # parent: BANK_TOKEN=... BANK_REPO=owner/name npm run qr -- --role parent
    ```
 
 3. The device scans it. The key and ledger repo land in the URL fragment, the app
@@ -40,7 +41,9 @@ grants `read`.
 
    If the scan opens Safari instead of the installed app, paste the link into the
    app's Connect panel: iOS keeps separate storage for home-screen apps. The
-   panel shows `<role> · key <fingerprint>` once a key is held.
+   panel shows `<role> · key <fingerprint>` once a key is held. Kid pairings carry
+   `account=<name>`; the app filters balances and activity to that account, while
+   parent pairings see every account.
 4. Delete `token-qr.svg` once the device is paired — the image *is* the key.
    Revoke the token on GitHub when a device is lost or replaced.
 
@@ -53,7 +56,7 @@ not expose the key to the host.
 npm install      # only for the QR generator (devDependency)
 npm test         # node --test suites
 npm run dev      # http://localhost:4173
-npm run build    # copies the shell into dist/
+npm run build    # emits content-hashed shell assets into dist/
 npm run preview  # serves dist/
 ```
 
@@ -129,8 +132,8 @@ post a comment with the device key:
 - `/approve` — the ledger workflow posts the transaction and closes the issue.
 - `/reject` — closes the issue without writing to the ledger.
 
-Devices paired without `--role parent` see the same list read-only, with an
-**Open** link that hands off to the GitHub app or browser.
+Kid devices do not get the **Waiting for a parent** list; it is parent-only so
+siblings' requests stay private.
 
 This is a convenience gate, not a credential boundary. Children's devices hold a
 key minted by a parent's account, so that key can comment as the parent; only
@@ -174,8 +177,8 @@ share the same origin storage, so either order works.
 ### Requirements and updates
 
 - Service workers need HTTPS or `localhost`; `http://<lan-ip>` will not install.
-- Bump `CACHE` in `public/sw.js` on every shell release, or installed clients
-  keep running the cached build.
+- `npm run build` hashes shell assets and derives the SW cache name, so releases
+  bust caches automatically; `public/sw.js` keeps the dev-server cache name.
 
 The shell is this repository, so `git clone` restores it anywhere. The ledger is
 separate, private, and never published.

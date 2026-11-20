@@ -1,8 +1,12 @@
 import { money, percent, signed } from "./format.js";
 
-const RECENT_LIMIT = 20;
+const RECENT_LIMIT = 5;
 
 export function renderAccounts(node, accounts) {
+  if (accounts.length === 0) {
+    node.replaceChildren(line("p", "No accounts to show.", "meta"));
+    return;
+  }
   node.replaceChildren(...accounts.map(accountCard));
 }
 
@@ -21,12 +25,16 @@ function accountCard(account) {
   return card;
 }
 
-export function renderActivity(node, transactions) {
+export function renderActivity(node, transactions, limit = RECENT_LIMIT) {
   if (transactions.length === 0) {
     node.replaceChildren(line("li", "No transactions yet.", "meta"));
     return;
   }
-  node.replaceChildren(...transactions.slice(0, RECENT_LIMIT).map(activityRow));
+  node.replaceChildren(...transactionRows(transactions.slice(0, limit)));
+}
+
+export function transactionRows(transactions) {
+  return transactions.map(activityRow);
 }
 
 function activityRow(transaction) {

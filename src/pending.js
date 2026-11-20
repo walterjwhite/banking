@@ -3,9 +3,14 @@ import { commentOnIssue, listOpenRequests } from "./issues.js";
 import { readRepo, readRole, readToken } from "./token.js";
 
 export function createPending({ section, list, status }) {
-  const canApprove = readRole() === "parent";
+  let canApprove = false;
 
   async function refresh() {
+    canApprove = readRole() === "parent";
+    if (!canApprove) {
+      section.hidden = true;
+      return;
+    }
     const token = readToken();
     const repo = readRepo();
     if (!token || !repo) {
