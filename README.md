@@ -29,8 +29,9 @@ grants `read`.
 2. Generate the QR with that token and the ledger repo:
 
    ```bash
-   BANK_TOKEN=github_pat_... BANK_REPO=owner/name npm run qr -- --url https://walterjwhite.github.io/banking/
-   # writes token-qr.svg
+   ./scripts/generate-qr-code.sh
+   # prompts for the PAT and repo; writes token-qr.svg
+   # or: BANK_TOKEN=github_pat_... BANK_REPO=owner/name npm run qr -- --url https://walterjwhite.github.io/banking/
    ```
 
 3. The device scans it. The key and ledger repo land in the URL fragment, the app
@@ -111,7 +112,8 @@ every edit and a parent always sees the current numbers.
 Pair the parent's device with the parent role:
 
 ```bash
-BANK_TOKEN=github_pat_... BANK_REPO=owner/name npm run qr -- --role parent
+ROLE=parent ./scripts/generate-qr-code.sh
+# or: BANK_TOKEN=github_pat_... BANK_REPO=owner/name npm run qr -- --role parent
 ```
 
 A QR is only written when a key is passed. If the script refuses, it names any
