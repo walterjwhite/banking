@@ -1,7 +1,8 @@
-export function money(amount) {
+export function money(amount, currency = "USD") {
   const value = Number(amount);
   if (!Number.isFinite(value)) return String(amount);
-  return value.toLocaleString("en-US", { style: "currency", currency: "USD" });
+  const code = /^[A-Za-z]{3}$/.test(currency) ? currency.toUpperCase() : "USD";
+  return value.toLocaleString("en-US", { style: "currency", currency: code });
 }
 
 export function signed(amount) {

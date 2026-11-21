@@ -18,6 +18,16 @@ export function issueTitle(request) {
 }
 
 export async function createIssue(request, token, repo, fetchImpl = globalThis.fetch) {
+  return postIssue(
+    { title: issueTitle(request), body: requestBody(request) },
+    token,
+    repo,
+    fetchImpl,
+  );
+}
+
+/** The shared filing path: deposits, withdrawals and charge reports. */
+export async function postIssue({ title, body }, token, repo, fetchImpl = globalThis.fetch) {
   if (!repo) throw new IssueError("No ledger repository is paired with this device.", 0);
   const response = await fetchImpl(issuesUrl(repo), {
     method: "POST",
@@ -26,7 +36,7 @@ export async function createIssue(request, token, repo, fetchImpl = globalThis.f
       authorization: `Bearer ${token}`,
       "content-type": "application/json",
     },
-    body: JSON.stringify({ title: issueTitle(request), body: requestBody(request) }),
+    body: JSON.stringify({ title, body }),
   });
   if (response.ok) {
     const issue = await response.json();

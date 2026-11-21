@@ -13,7 +13,7 @@ the device (`phone-a`, `phone-b`).
 
 | Account | Ledger role | Token permissions | Can approve |
 | --- | --- | --- | --- |
-| Parent | `write` | `Contents: read` (+ `Issues: read and write` to file) | yes |
+| Parent | `write` | `Contents: read` (+ `Issues: read and write` to file, + `Contents: write` to save photos) | yes |
 | Child (13+) | `read` | `Contents: read` + `Issues: read and write` | no |
 
 `/approve` is judged by the commenter's repository permission, so a child's
@@ -116,6 +116,76 @@ the filing key from a separate account that has only **read** on the ledger.
 
 The request body is what the workflow applies, so `verify-request` re-runs on
 every edit and a parent always sees the current numbers.
+
+## Charges and evidence
+
+The shell knows no charge names and no amounts. `charges.json` in the ledger is the
+whole policy, read with the device key exactly like `snapshot.json`:
+
+```json
+{
+  "version": 3,
+  "currency": "USD",
+  "items": [
+    {
+      "id": "mess.table",
+      "label": "Table not wiped",
+      "kind": "debit",
+      "amount": "2.00",
+      "evidence": "required",
+      "fields": [
+        { "name": "location", "label": "Where", "type": "choice", "options": ["kitchen table", "dining table"] },
+        { "name": "extra_mess", "label": "Anything else left out", "type": "text" }
+      ]
+    },
+    { "id": "chore.dishes", "label": "Dishes done", "kind": "credit", "amount": "1.00" }
+  ]
+}
+```
+
+An entry only needs `id`, `label` and `amount`; `kind` defaults to `debit`,
+`evidence` to `optional` (or `required`/`none`), and `fields` is empty. Field
+types the shell can draw are `text`, `choice`, `number` and `date`; an entry
+whose `choice` field has no `options` is skipped rather than shown broken.
+Missing or unreadable `charges.json` simply hides the form and keeps the last
+cached copy for offline use — the app never invents a charge.
+
+Reporting a charge creates the same kind of issue as a deposit or withdrawal, with
+the catalogue id in the fenced JSON:
+
+```
+POST /repos/owner/ledger-repo/issues
+{
+  "id": "<uuid>", "type": "charge", "charge": "mess.table", "kind": "debit",
+  "account": "Kid A", "amount": "2.00", "description": "table",
+  "reported_by": "Parent", "occurred_at": "2026-11-21T18:04:00.000Z",
+  "policy": { "version": 3, "currency": "USD" },
+  "answers": { "location": "kitchen table" },
+  "evidence": [{ "path": "evidence/2026-11/<uuid>.jpg", "sha256": "…", "width": 1440, "height": 1080, "bytes": 184320 }]
+}
+```
+
+No amount is trusted from the phone: the workflow re-reads its own
+`charges.json`, looks up `charge`, recomputes the amount and rejects an `id` it
+has already posted. The `policy.version` and `reported_by` are there so a
+mismatch or a disputed charge is visible in the issue. A charge type the workflow
+does not know must fail closed and leave the issue open.
+
+**The photo.** The picture is decoded, drawn onto a canvas capped at
+1920×1080 and re-encoded as JPEG (about 1.5 MB at most), which also drops EXIF
+including GPS. The bytes go to `evidence/<year>-<month>/<report id>.jpg` in the
+ledger through the Contents API, and the issue carries the path, hash, size and
+dimensions. That upload needs `Contents: read and write` on the parent's key; a
+key without it gets a clear message plus the prefilled issue link, where the
+photo can be attached by hand in the browser. Evidence lands on the ledger's
+default branch and is never served by this public shell.
+
+**What a report carries:** the catalogue entry and its policy version, the
+account charged, the account that filed it, when the mess happened anyway (the
+phone clock is not the ledger clock), the free-text note, the config-declared
+answers, and the evidence list with a SHA-256 so a swapped picture is obvious.
+The same path covers credits: a `kind: "credit"` entry posts money back, so
+chores and messes share one form, one approval step and one audit trail.
 
 ## Approving from the app
 

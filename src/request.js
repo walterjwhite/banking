@@ -27,9 +27,13 @@ export function requestBody(request) {
 }
 
 export function issueUrl(request, repo) {
-  const params = new URLSearchParams({
-    title: `${request.type}: ${request.account} ${request.amount}`,
-    body: requestBody(request),
-  });
-  return `https://github.com/${repo}/issues/new?${params}`;
+  return newIssueUrl(
+    { title: `${request.type}: ${request.account} ${request.amount}`, body: requestBody(request) },
+    repo,
+  );
+}
+
+/** Any title/body, so charge reports can fall back to the same web form. */
+export function newIssueUrl({ title, body }, repo) {
+  return `https://github.com/${repo}/issues/new?${new URLSearchParams({ title, body })}`;
 }

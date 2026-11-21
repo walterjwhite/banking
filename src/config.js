@@ -8,3 +8,7 @@ export const ROLE_KEY = "family-bank.role";
 export const REPO_KEY = "family-bank.repo";
 export const ACCOUNT_KEY = "family-bank.account";
 export const SNAPSHOT_CACHE_KEY = "family-bank.snapshot";
+
+/** The charge catalogue lives in the ledger, not in this repository. */
+export const CATALOG_FILE = "charges.json";
+export const CATALOG_CACHE_KEY = "family-bank.catalog";

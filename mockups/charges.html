@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Family Bank — charge and reward mockup</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <style>
+      body.mockup {
+        max-width: none;
+        padding-top: 1.5rem;
+      }
+
+      .mock-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.5rem 1rem;
+      }
+
+      .mock-head h1 {
+        font-size: 1.5rem;
+      }
+
+      .mock-tag {
+        padding: 0.3rem 0.6rem;
+        border-radius: 999px;
+        background: #f6e6c8;
+        color: #7a5a17;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .mock-intro {
+        max-width: 46rem;
+        margin: 0.5rem 0 0;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      .screens {
+        display: grid;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .screen {
+        border: 1px dashed #cfc9bb;
+        border-radius: 24px;
+        background: #efece4;
+        padding: 0.8rem;
+      }
+
+      .screen-label {
+        margin: 0 0 0.6rem 0.3rem;
+        color: var(--muted);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .phone {
+        display: grid;
+        gap: 1rem;
+        padding: 1.1rem;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: var(--paper);
+      }
+
+      .phone .masthead {
+        padding-top: 0;
+      }
+
+      .phone h1 {
+        font-size: 1.55rem;
+      }
+
+      .phone main {
+        display: grid;
+        gap: 1rem;
+        margin-top: 0;
+      }
+
+      .phone .accounts {
+        grid-template-columns: 1fr;
+      }
+
+      .phone .balance {
+        font-size: 1.6rem;
+      }
+
+      .photo {
+        display: grid;
+        gap: 0.35rem;
+        margin: 0;
+      }
+
+      .photo svg,
+      .photo .shot {
+        display: block;
+        width: 100%;
+        height: auto;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+      }
+
+      .photo .shot {
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+      }
+
+      .photo.has-shot svg {
+        display: none;
+      }
+
+      .photo figcaption {
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .evidence-card {
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .evidence-card h2 {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .evidence-card .photo svg {
+        max-height: 9rem;
+        object-fit: cover;
+      }
+
+      .notes {
+        display: grid;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .notes .card h2 {
+        color: var(--ink);
+        font-size: 0.95rem;
+      }
+
+      .notes .card p {
+        margin: 0.4rem 0 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .payload {
+        margin-top: 1.2rem;
+      }
+
+      .payload summary {
+        cursor: pointer;
+        color: var(--green);
+        font-size: 0.85rem;
+        font-weight: 650;
+      }
+
+      pre {
+        overflow: auto;
+        margin: 0.8rem 0 0;
+        padding: 1rem;
+        border-radius: 12px;
+        background: #10201a;
+        color: #d9f0e4;
+        font-size: 0.72rem;
+        line-height: 1.5;
+      }
+
+      @media (min-width: 900px) {
+        body.mockup {
+          max-width: 1120px;
+          margin: 0 auto;
+          padding-top: 2.5rem;
+        }
+
+        .screens {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          align-items: start;
+        }
+
+        .screen-wide {
+          grid-column: 1 / -1;
+        }
+
+        .notes {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body class="mockup">
+    <header class="mock-head">
+      <div>
+        <p class="eyebrow">Family Bank</p>
+        <h1>A charge or a reward — mockup</h1>
+      </div>
+      <span class="mock-tag">static · sample data · not part of the build</span>
+    </header>
+    <p class="mock-intro">
+      Three screens: filing a charge, claiming a reward, and the parent queue both
+      land in. They are the same form — the ledger's <code>charges.json</code> declares
+      a <code>kind</code> of <code>debit</code> or <code>credit</code>, and each
+      screen's select holds both entries, so switching one turns the charge into a
+      reward in place.
+      The photo inputs use the device camera.
+    </p>
+
+    <div class="screens">
+      <section class="screen" data-charge-screen data-default="mess.table" aria-labelledby="screen-one">
+        <p class="screen-label" id="screen-one">1 · Report a charge (debit)</p>
+        <div class="phone">
+          <header class="masthead">
+            <div>
+              <p class="eyebrow">Family Bank</p>
+              <h1>Balances</h1>
+            </div>
+            <div class="masthead-actions">
+              <span class="badge">21/11/2026</span>
+              <p class="meta">kid · Kid A · key 4f2a91c8</p>
+            </div>
+          </header>
+
+          <main>
+            <section class="accounts">
+              <article class="card">
+                <h2>Kid A</h2>
+                <p class="balance">$18.50</p>
+                <p class="meta">savings · 4.00% a year · interest to 2026-11-01</p>
+              </article>
+            </section>
+
+            <section class="request">
+              <h2>Report a mess</h2>
+              <p class="meta">Charge list v3 from the ledger.</p>
+              <form>
+                <label>
+                  Charge
+                  <select data-charge>
+                    <option value="mess.table">Table not wiped — $2.00</option>
+                    <option value="chore.dishes">Dishes done — $1.00</option>
+                  </select>
+                </label>
+                <label>
+                  Account
+                  <select data-subject>
+                    <option>Kid A</option>
+                    <option>Kid B</option>
+                  </select>
+                </label>
+                <div class="charge-fields" data-extras></div>
+                <label>
+                  When
+                  <input type="datetime-local" value="2026-11-21T18:04" />
+                </label>
+                <label>
+                  Note
+                  <input type="text" value="after dinner" />
+                </label>
+                <label>
+                  <span data-photo-label>Photo (required)</span>
+                  <input type="file" accept="image/*" capture="environment" data-photo />
+                </label>
+                <figure class="photo" data-shot>
+                  <svg viewBox="0 0 480 300" role="img" aria-label="A table with a plate, crumbs and a cup left out">
+                    <rect width="480" height="300" fill="#f3ede2" />
+                    <rect x="24" y="48" width="432" height="204" rx="16" fill="#d9b98d" />
+                    <rect x="24" y="48" width="432" height="204" rx="16" fill="none" stroke="#c9a778" stroke-width="3" />
+                    <circle cx="190" cy="150" r="58" fill="#fdfaf3" stroke="#e6ddca" stroke-width="4" />
+                    <circle cx="190" cy="150" r="34" fill="#f4eee0" />
+                    <rect x="316" y="104" width="58" height="62" rx="10" fill="#fdfaf3" stroke="#e6ddca" stroke-width="4" />
+                    <path d="M374 116c18 0 18 38 0 38" fill="none" stroke="#e6ddca" stroke-width="6" />
+                    <circle cx="264" cy="212" r="6" fill="#b98f5c" />
+                    <circle cx="286" cy="224" r="4" fill="#b98f5c" />
+                    <circle cx="248" cy="232" r="5" fill="#b98f5c" />
+                    <circle cx="302" cy="206" r="3" fill="#b98f5c" />
+                    <circle cx="120" cy="222" r="5" fill="#b98f5c" />
+                    <circle cx="98" cy="196" r="3" fill="#b98f5c" />
+                    <rect x="48" y="70" width="70" height="10" rx="5" fill="#c9a778" />
+                  </svg>
+                  <img class="shot" alt="the picture that will be sent" data-preview hidden />
+                  <figcaption data-caption>mess.jpg · 1440×1080 · 184 KB · metadata stripped</figcaption>
+                </figure>
+                <button type="submit">Send to a parent</button>
+                <p class="hint" data-hint></p>
+              </form>
+            </section>
+          </main>
+        </div>
+      </section>
+
+      <section class="screen" data-charge-screen data-default="chore.dishes" aria-labelledby="screen-two">
+        <p class="screen-label" id="screen-two">2 · Claim a reward (credit)</p>
+        <div class="phone">
+          <header class="masthead">
+            <div>
+              <p class="eyebrow">Family Bank</p>
+              <h1>Balances</h1>
+            </div>
+            <div class="masthead-actions">
+              <span class="badge">21/11/2026</span>
+              <p class="meta">kid · Kid B · key 7d0e33af</p>
+            </div>
+          </header>
+
+          <main>
+            <section class="accounts">
+              <article class="card">
+                <h2>Kid B</h2>
+                <p class="balance">$9.25</p>
+                <p class="meta">savings · 4.00% a year · interest to 2026-11-01</p>
+              </article>
+            </section>
+
+            <section class="request">
+              <h2>Claim a chore</h2>
+              <p class="meta">Charge list v3 from the ledger.</p>
+              <form>
+                <label>
+                  Charge
+                  <select data-charge>
+                    <option value="mess.table">Table not wiped — $2.00</option>
+                    <option value="chore.dishes">Dishes done — $1.00</option>
+                  </select>
+                </label>
+                <label>
+                  Account
+                  <select data-subject>
+                    <option>Kid B</option>
+                    <option>Kid A</option>
+                  </select>
+                </label>
+                <div class="charge-fields" data-extras></div>
+                <label>
+                  When
+                  <input type="datetime-local" value="2026-11-21T19:20" />
+                </label>
+                <label>
+                  Note
+                  <input type="text" value="both loads" />
+                </label>
+                <label>
+                  <span data-photo-label>Photo</span>
+                  <input type="file" accept="image/*" capture="environment" data-photo />
+                </label>
+                <figure class="photo" data-shot>
+                  <svg viewBox="0 0 480 300" role="img" aria-label="A clean sink with plates stacked up to dry">
+                    <rect width="480" height="300" fill="#eef3ee" />
+                    <rect x="56" y="118" width="368" height="126" rx="20" fill="#dfe7df" stroke="#c7d3c7" stroke-width="3" />
+                    <rect x="92" y="150" width="128" height="62" rx="10" fill="#fdfaf3" stroke="#e3ddce" stroke-width="3" />
+                    <rect x="102" y="132" width="108" height="20" rx="7" fill="#f7f2e6" stroke="#e3ddce" stroke-width="3" />
+                    <circle cx="300" cy="176" r="42" fill="#fdfaf3" stroke="#e3ddce" stroke-width="3" />
+                    <circle cx="300" cy="176" r="23" fill="#f4eee0" />
+                    <rect x="356" y="146" width="10" height="72" rx="5" fill="#fdfaf3" stroke="#e3ddce" stroke-width="3" />
+                    <rect x="374" y="146" width="10" height="72" rx="5" fill="#fdfaf3" stroke="#e3ddce" stroke-width="3" />
+                    <path d="M420 86v18M411 95h18" stroke="#7aa87a" stroke-width="4" stroke-linecap="round" />
+                    <path d="M62 96v12M56 102h12" stroke="#7aa87a" stroke-width="3" stroke-linecap="round" />
+                  </svg>
+                  <img class="shot" alt="the picture that will be sent" data-preview hidden />
+                  <figcaption data-caption>sink.jpg · 1440×1080 · 156 KB · metadata stripped</figcaption>
+                </figure>
+                <button type="submit">Send to a parent</button>
+                <p class="hint" data-hint></p>
+              </form>
+            </section>
+          </main>
+        </div>
+      </section>
+
+      <section class="screen screen-wide" aria-labelledby="screen-three">
+        <p class="screen-label" id="screen-three">3 · A parent approves — both kinds, one queue</p>
+        <div class="phone">
+          <header class="masthead">
+            <div>
+              <p class="eyebrow">Family Bank</p>
+              <h1>Waiting</h1>
+            </div>
+            <div class="masthead-actions">
+              <span class="badge">parent · 2 waiting</span>
+              <p class="meta">key 9c1b07de</p>
+            </div>
+          </header>
+
+          <main>
+            <section class="activity">
+              <h2>Waiting for a parent</h2>
+              <ol class="pending" data-pending-list>
+                <li class="request-row">
+                  <span>#42 charge: Kid A 2.00</span>
+                  <span class="meta">from @Kid A · Table not wiped · kitchen table · 1 photo</span>
+                  <span class="actions">
+                    <button type="button" data-approve="42">Approve</button>
+                    <button type="button" class="ghost" data-reject="42">Reject</button>
+                  </span>
+                </li>
+                <li class="request-row">
+                  <span>#43 credit: Kid B 1.00</span>
+                  <span class="meta">from @Kid B · Dishes done · dinner · 1 photo</span>
+                  <span class="actions">
+                    <button type="button" data-approve="43">Approve</button>
+                    <button type="button" class="ghost" data-reject="43">Reject</button>
+                  </span>
+                </li>
+              </ol>
+              <p class="hint" data-pending-hint></p>
+            </section>
+
+            <section class="card evidence-card">
+              <h2>Evidence on #42 — the charge</h2>
+              <figure class="photo">
+                <svg viewBox="0 0 480 300" role="img" aria-label="The same table picture, linked from the issue">
+                  <rect width="480" height="300" fill="#f3ede2" />
+                  <rect x="24" y="48" width="432" height="204" rx="16" fill="#d9b98d" />
+                  <circle cx="190" cy="150" r="58" fill="#fdfaf3" stroke="#e6ddca" stroke-width="4" />
+                  <circle cx="190" cy="150" r="34" fill="#f4eee0" />
+                  <rect x="316" y="104" width="58" height="62" rx="10" fill="#fdfaf3" stroke="#e6ddca" stroke-width="4" />
+                  <circle cx="264" cy="212" r="6" fill="#b98f5c" />
+                  <circle cx="286" cy="224" r="4" fill="#b98f5c" />
+                  <circle cx="248" cy="232" r="5" fill="#b98f5c" />
+                </svg>
+                <figcaption>
+                  evidence/2026-11/9f3c….jpg · sha256 5d2a…b8 · 1440×1080
+                </figcaption>
+              </figure>
+            </section>
+
+            <section class="card evidence-card">
+              <h2>Evidence on #43 — the reward</h2>
+              <figure class="photo">
+                <svg viewBox="0 0 480 300" role="img" aria-label="The sink picture, linked from the issue">
+                  <rect width="480" height="300" fill="#eef3ee" />
+                  <rect x="56" y="118" width="368" height="126" rx="20" fill="#dfe7df" />
+                  <rect x="92" y="150" width="128" height="62" rx="10" fill="#fdfaf3" stroke="#e3ddce" stroke-width="3" />
+                  <rect x="102" y="132" width="108" height="20" rx="7" fill="#f7f2e6" stroke="#e3ddce" stroke-width="3" />
+                  <circle cx="300" cy="176" r="42" fill="#fdfaf3" stroke="#e3ddce" stroke-width="3" />
+                  <circle cx="300" cy="176" r="23" fill="#f4eee0" />
+                </svg>
+                <figcaption>
+                  evidence/2026-11/2a17….jpg · sha256 c81e…40 · 1440×1080
+                </figcaption>
+              </figure>
+            </section>
+
+            <details class="payload">
+              <summary>What issue #42 carries</summary>
+              <pre>{
+  "id": "9f3c2b1e-…",
+  "type": "charge",
+  "charge": "mess.table",
+  "label": "Table not wiped",
+  "kind": "debit",
+  "account": "Kid A",
+  "amount": "2.00",
+  "reported_by": "Kid A",
+  "occurred_at": "2026-11-21T18:04:00.000Z",
+  "policy": { "version": 3, "currency": "USD" },
+  "answers": { "location": "kitchen table", "left_out": "a cup" },
+  "evidence": [{
+    "path": "evidence/2026-11/9f3c….jpg",
+    "width": 1440, "height": 1080, "bytes": 184320,
+    "sha256": "5d2a…b8"
+  }]
+}</pre>
+            </details>
+
+            <details class="payload">
+              <summary>What issue #43 carries — same shape, opposite direction</summary>
+              <pre>{
+  "id": "7b410d55-…",
+  "type": "charge",
+  "charge": "chore.dishes",
+  "label": "Dishes done",
+  "kind": "credit",
+  "account": "Kid B",
+  "amount": "1.00",
+  "reported_by": "Kid B",
+  "occurred_at": "2026-11-21T19:20:00.000Z",
+  "policy": { "version": 3, "currency": "USD" },
+  "answers": { "which": "dinner" },
+  "evidence": [{
+    "path": "evidence/2026-11/2a17….jpg",
+    "width": 1440, "height": 1080, "bytes": 159744,
+    "sha256": "c81e…40"
+  }]
+}</pre>
+            </details>
+          </main>
+        </div>
+      </section>
+    </div>
+
+    <div class="notes">
+      <article class="card">
+        <h2>Config, not code</h2>
+        <p>
+          Every entry — a mess charge, a chore reward — is a record in
+          <code>charges.json</code> in the ledger, with a <code>kind</code> of
+          <code>debit</code> or <code>credit</code>. The select swaps the declared
+          fields live: a choice for where, a text box for what was left out, nothing
+          at all for a simple bonus.
+        </p>
+      </article>
+      <article class="card">
+        <h2>One form, both directions</h2>
+        <p>
+          A <code>debit</code> takes money out, a <code>credit</code> puts it in.
+          Only the label, amount and questions differ; the form, the photo handling,
+          the queue row and the parent PIN are identical, so the audit trail is
+          uniform.
+        </p>
+      </article>
+      <article class="card">
+        <h2>Camera, straight from the input</h2>
+        <p>
+          The input is <code>type="file" accept="image/*" capture="environment"</code>.
+          On Android Chrome that opens the rear camera immediately; on iPhone Safari
+          it offers <em>Take Photo</em> or <em>Photo Library</em>; on a desktop it is
+          the usual file picker. No <code>getUserMedia</code>, so there is no
+          permission prompt and no camera stream left running — and the same input
+          still works when the browser ignores <code>capture</code>. The tradeoff:
+          <code>capture</code> is a hint to skip the picker, so Android goes straight
+          to the camera and cannot pick an older photo. Drop the attribute where the
+          photo is optional (the reward above), keep it where the picture is the
+          evidence.
+        </p>
+      </article>
+      <article class="card">
+        <h2>Picture handling</h2>
+        <p>
+          The photo is capped at 1920×1080, re-encoded as JPEG and stripped of
+          location metadata, then written to the private ledger as
+          <code>evidence/2026-11/&lt;id&gt;.jpg</code>. The issue keeps the path and
+          a SHA-256, so a parent can check the photo later without it ever being
+          served from this public shell.
+        </p>
+      </article>
+    </div>
+
+    <script>
+      const CATALOG = {
+        "mess.table": {
+          label: "Table not wiped",
+          kind: "debit",
+          amount: "2.00",
+          evidence: "required",
+          fields: [
+            {
+              name: "location",
+              label: "Where",
+              type: "choice",
+              options: ["kitchen table", "dining table"],
+            },
+            { name: "left_out", label: "Anything left out", type: "text" },
+          ],
+        },
+        "chore.dishes": {
+          label: "Dishes done",
+          kind: "credit",
+          amount: "1.00",
+          evidence: "optional",
+          fields: [
+            {
+              name: "which",
+              label: "Which load",
+              type: "choice",
+              options: ["dinner", "breakfast"],
+            },
+            { name: "soak", label: "Anything soaked", type: "text" },
+          ],
+        },
+      };
+
+      const PENDING = {
+        42: { amount: "2.00", kind: "debit" },
+        43: { amount: "1.00", kind: "credit" },
+      };
+
+      const list = document.querySelector("[data-pending-list]");
+      const queueHint = document.querySelector("[data-pending-hint]");
+      let nextId = 44;
+
+      const dollars = (amount) => `$${Number(amount).toFixed(2)}`;
+      const noun = (kind) => (kind === "debit" ? "charge" : "credit");
+
+      for (const screen of document.querySelectorAll("[data-charge-screen]")) {
+        wire(screen);
+      }
+
+      function wire(screen) {
+        const form = screen.querySelector("form");
+        const charge = screen.querySelector("[data-charge]");
+        const subject = screen.querySelector("[data-subject]");
+        const extras = screen.querySelector("[data-extras]");
+        const hint = screen.querySelector("[data-hint]");
+        const photo = screen.querySelector("[data-photo]");
+        const photoLabel = screen.querySelector("[data-photo-label]");
+        const figure = screen.querySelector("[data-shot]");
+        const caption = screen.querySelector("[data-caption]");
+        const preview = screen.querySelector("[data-preview]");
+        let previewUrl = null;
+
+        charge.value = screen.dataset.default;
+
+        function entry() {
+          return CATALOG[charge.value];
+        }
+
+        function draw() {
+          const item = entry();
+          photoLabel.textContent = item.evidence === "required" ? "Photo (required)" : "Photo";
+          extras.replaceChildren();
+          for (const field of item.fields) {
+            const label = document.createElement("label");
+            label.append(document.createTextNode(field.label));
+            let control;
+            if (field.type === "choice") {
+              control = document.createElement("select");
+              for (const option of field.options) {
+                const node = document.createElement("option");
+                node.value = option;
+                node.textContent = option;
+                control.append(node);
+              }
+            } else {
+              control = document.createElement("input");
+              control.type = "text";
+              control.placeholder = "optional";
+            }
+            label.append(control);
+            extras.append(label);
+          }
+          extras.hidden = item.fields.length === 0;
+          const verb = item.kind === "debit" ? "charged to" : "credited to";
+          hint.classList.remove("error");
+          hint.textContent =
+            `${dollars(item.amount)} will be ${verb} ${subject.value} if a parent approves.` +
+            (item.evidence === "required" ? " A picture is required." : "");
+        }
+
+        charge.addEventListener("change", draw);
+        subject.addEventListener("change", draw);
+
+        photo.addEventListener("change", () => {
+          const file = photo.files?.[0];
+          if (!file) return;
+          if (previewUrl) URL.revokeObjectURL(previewUrl);
+          previewUrl = URL.createObjectURL(file);
+          preview.src = previewUrl;
+          preview.hidden = false;
+          figure.classList.add("has-shot");
+          caption.textContent = `${file.name} · kept at up to 1920×1080 JPEG · metadata stripped`;
+        });
+
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const item = entry();
+          const id = nextId;
+          nextId += 1;
+          const row = document.createElement("li");
+          row.className = "request-row";
+          const title = document.createElement("span");
+          title.textContent = `#${id} ${noun(item.kind)}: ${subject.value} ${item.amount}`;
+          const meta = document.createElement("span");
+          meta.className = "meta";
+          meta.textContent = `from @${subject.value} · ${item.label} · photo queued · ${noun(item.kind)}`;
+          const actions = document.createElement("span");
+          actions.className = "actions";
+          actions.textContent = "waiting for a parent";
+          row.append(title, meta, actions);
+          list.append(row);
+          hint.classList.remove("error");
+          hint.textContent = `Report #${id} is waiting for a parent. It shows up in their queue below.`;
+        });
+
+        draw();
+      }
+
+      for (const button of document.querySelectorAll("[data-approve]")) {
+        button.addEventListener("click", () => {
+          const id = button.dataset.approve;
+          const item = PENDING[id];
+          if (!item) return;
+          const confirm = document.createElement("form");
+          confirm.className = "confirm";
+          const pin = document.createElement("input");
+          pin.type = "password";
+          pin.inputMode = "numeric";
+          pin.maxLength = 8;
+          pin.placeholder = "parent PIN";
+          pin.required = true;
+          const go = document.createElement("button");
+          go.type = "submit";
+          go.textContent = "Set PIN and approve";
+          const cancel = document.createElement("button");
+          cancel.type = "button";
+          cancel.className = "link";
+          cancel.textContent = "Cancel";
+          cancel.addEventListener("click", () => {
+            confirm.remove();
+          });
+          confirm.append(pin, go, cancel);
+          confirm.addEventListener("submit", (event) => {
+            event.preventDefault();
+            confirm.remove();
+            button.parentElement.replaceChildren();
+            queueHint.classList.remove("error");
+            queueHint.textContent =
+              `#${id} approved. The ledger posts the ${dollars(item.amount)} ` +
+              `${noun(item.kind)} and closes the issue.`;
+          });
+          button.closest(".request-row").append(confirm);
+        });
+      }
+
+      for (const button of document.querySelectorAll("[data-reject]")) {
+        button.addEventListener("click", () => {
+          const id = button.dataset.reject;
+          button.parentElement.replaceChildren();
+          queueHint.classList.remove("error");
+          queueHint.textContent = `#${id} rejected. Nothing is posted to the ledger.`;
+        });
+      }
+    </script>
+  </body>
+</html>

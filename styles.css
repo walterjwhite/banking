@@ -141,7 +141,8 @@ label {
 }
 
 select,
-input {
+input,
+textarea {
   padding: 0.6rem 0.7rem;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -327,4 +328,22 @@ a {
 .masthead-actions .meta {
   margin: 0;
   font-size: 0.7rem;
+}
+
+#charge .meta {
+  margin: 0 0 0.8rem;
+}
+
+.charge-fields {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.photo-preview {
+  width: 100%;
+  max-height: 12rem;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
 }

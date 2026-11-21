@@ -1,6 +1,8 @@
 import { loadSnapshot, readCached, saveCached } from "./api.js";
+import { createChargeForm } from "./charge-form.js";
 import { createPairing } from "./onboarding.js";
 import { createPending } from "./pending.js";
+import { loadCatalog, readCachedCatalog, saveCachedCatalog } from "./policy.js";
 import { renderAccounts, renderAccountOptions, renderActivity, transactionRows } from "./render.js";
 import { createRequestForm } from "./request-form.js";
 import {
@@ -38,12 +40,21 @@ const nodes = {
 };
 
 let scopedTransactions = [];
+let scopedAccounts = [];
 let shownTransactions = 0;
 
 const pending = createPending({
   section: nodes.pendingSection,
   list: nodes.pendingList,
   status: nodes.pendingStatus,
+});
+
+const charges = createChargeForm({
+  section: document.querySelector("#charge"),
+  form: document.querySelector("#charge-form"),
+  meta: document.querySelector("#charge-meta"),
+  hint: document.querySelector("#charge-hint"),
+  onFiled: pending.refresh,
 });
 
 const pairing = createPairing({
@@ -103,7 +114,29 @@ async function connect(token) {
   } catch (error) {
     failed(error);
   }
+  await loadCharges(token);
   pending.refresh();
+}
+
+/** The charge list is optional and cached, so a missing file or offline phone is not an error. */
+async function loadCharges(token) {
+  try {
+    const catalog = await loadCatalog(token, readRepo());
+    saveCachedCatalog(catalog);
+    charges.render(catalog, chargeScope());
+  } catch (error) {
+    const cached = readCachedCatalog();
+    if (cached?.items?.length) charges.render(cached, { ...chargeScope(), note: error.message });
+    else charges.render({ items: [] }, { ...chargeScope(), note: error.message });
+  }
+}
+
+/** Parents see every account; a kid device only knows its own. */
+function chargeScope() {
+  return {
+    accounts: scopedAccounts,
+    defaultSubject: readRole() === "parent" ? null : readAccount(),
+  };
 }
 
 /** The stored key is only removed by Forget key; a failed read never deletes it. */
@@ -125,6 +158,7 @@ function savedKeyNote() {
 function paint(snapshot, state) {
   const scoped = scopeSnapshot(snapshot);
   scopedTransactions = scoped.transactions;
+  scopedAccounts = scoped.accounts;
   shownTransactions = 0;
   nodes.nav.hidden = false;
   if (scoped.missing) nodes.accounts.replaceChildren(scopeNotice());
