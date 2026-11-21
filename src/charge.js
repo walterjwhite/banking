@@ -33,12 +33,15 @@ export function buildCharge({
   const account = String(subject ?? "").trim();
   if (!account) throw new Error("Choose the account to charge.");
   const text = String(note ?? "").trim();
+  const kind = entry.kind === "credit" ? "credit" : "debit";
   return {
     id: String(id),
-    type: "charge",
+    // The ledger validates type as a transaction, so a debit posts as a
+    // withdrawal and a credit as a deposit; `charge` still names the entry.
+    type: kind === "credit" ? "deposit" : "withdrawal",
     charge: entry.id,
     label: entry.label,
-    kind: entry.kind === "credit" ? "credit" : "debit",
+    kind,
     account,
     amount: normalizeAmount(entry.amount),
     description: text || entry.label,
@@ -52,13 +55,13 @@ export function buildCharge({
 
 export function chargeIssue(report) {
   return {
-    title: `charge: ${report.account} ${report.amount}`,
+    title: `${report.type}: ${report.account} ${report.amount}`,
     body: [
       "```json",
       JSON.stringify(report, null, 2),
       "```",
       "",
-      `A parent can comment \`/approve\` to post this ${report.kind} of ${report.amount} for “${report.label}”.`,
+      `A parent can comment \`/approve\` to post this ${report.type} of ${report.amount} for “${report.label}”.`,
     ].join("\n"),
   };
 }

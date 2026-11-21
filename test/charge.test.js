@@ -46,7 +46,7 @@ test("buildCharge keeps the ledger-facing keys and adds the report data", () => 
     evidence: [{ path: "evidence/2026-11/a.jpg", sha256: "abc" }],
   });
 
-  assert.equal(report.type, "charge");
+  assert.equal(report.type, "withdrawal");
   assert.equal(report.account, "Kid A");
   assert.equal(report.amount, "2.00");
   assert.equal(report.charge, "mess.table");
@@ -63,11 +63,23 @@ test("buildCharge requires an entry and a subject", () => {
   assert.throws(() => buildCharge({ entry: ENTRY, subject: "  " }), /account to charge/);
 });
 
+test("a credit entry posts as a deposit", () => {
+  const report = buildCharge({
+    entry: { ...ENTRY, id: "chore.dishes", label: "Dishes done", kind: "credit", amount: "1.00" },
+    subject: "Kid B",
+    occurredAt: "2026-11-21T10:00:00.000Z",
+  });
+  assert.equal(report.type, "deposit");
+  assert.equal(report.kind, "credit");
+  assert.equal(report.charge, "chore.dishes");
+  assert.equal(chargeIssue(report).title, "deposit: Kid B 1.00");
+});
+
 test("chargeIssue fences json and asks for /approve", () => {
   const issue = chargeIssue(
     buildCharge({ entry: ENTRY, subject: "Kid A", occurredAt: "2026-11-21T10:00:00.000Z" }),
   );
-  assert.equal(issue.title, "charge: Kid A 2.00");
+  assert.equal(issue.title, "withdrawal: Kid A 2.00");
   assert.match(issue.body, /```json/);
   assert.match(issue.body, /"charge": "mess.table"/);
   assert.match(issue.body, /\/approve/);

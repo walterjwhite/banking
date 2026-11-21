@@ -156,7 +156,7 @@ the catalogue id in the fenced JSON:
 ```
 POST /repos/owner/ledger-repo/issues
 {
-  "id": "<uuid>", "type": "charge", "charge": "mess.table", "kind": "debit",
+  "id": "<uuid>", "type": "withdrawal", "charge": "mess.table", "kind": "debit",
   "account": "Kid A", "amount": "2.00", "description": "table",
   "reported_by": "Parent", "occurred_at": "2026-11-21T18:04:00.000Z",
   "policy": { "version": 3, "currency": "USD" },
@@ -165,10 +165,14 @@ POST /repos/owner/ledger-repo/issues
 }
 ```
 
+`type` is the ledger's own transaction word, so the existing approval workflow
+accepts the report: a `debit` entry posts as `withdrawal`, a `credit` as
+`deposit`. `charge` is what names the catalogue entry the workflow looks up.
+
 No amount is trusted from the phone: the workflow re-reads its own
 `charges.json`, looks up `charge`, recomputes the amount and rejects an `id` it
 has already posted. The `policy.version` and `reported_by` are there so a
-mismatch or a disputed charge is visible in the issue. A charge type the workflow
+mismatch or a disputed charge is visible in the issue. A `charge` id the workflow
 does not know must fail closed and leave the issue open.
 
 **The photo.** The picture is decoded, drawn onto a canvas capped at
@@ -184,7 +188,7 @@ default branch and is never served by this public shell.
 account charged, the account that filed it, when the mess happened anyway (the
 phone clock is not the ledger clock), the free-text note, the config-declared
 answers, and the evidence list with a SHA-256 so a swapped picture is obvious.
-The same path covers credits: a `kind: "credit"` entry posts money back, so
+The same path covers credits: a `kind: "credit"` entry posts a `deposit`, so
 chores and messes share one form, one approval step and one audit trail.
 
 ## Approving from the app
