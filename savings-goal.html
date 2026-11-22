@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#1f6f4a" />
+    <title>Savings Goal Planner</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .field {
+        width: 100%;
+        margin-top: 0.25rem;
+        padding: 0.55rem 0.7rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.6rem;
+        background: #fff;
+        color: #1e293b;
+        font: inherit;
+        font-size: 1rem;
+      }
+      .field:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: -1px;
+      }
+      .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #fff;
+        padding: 1rem;
+        box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+      }
+      @media (min-width: 640px) {
+        .card {
+          padding: 1.5rem;
+        }
+      }
+      /* Phones show one pane at a time; from 1024px both sit side by side. */
+      @media (max-width: 1023px) {
+        body[data-view="chart"] #pane-inputs,
+        body[data-view="inputs"] #pane-chart {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body
+    data-view="chart"
+    class="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased"
+  >
+    <div class="mx-auto w-full max-w-xl px-4 pb-16 pt-4 sm:px-6 lg:max-w-6xl lg:pt-8">
+      <nav class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+        <a href="./index.html" class="font-medium text-emerald-700"
+          >&larr; Family Bank</a
+        >
+        <a href="./compounding.html" class="text-slate-500">Compounding</a>
+        <a href="./purchase-power.html" class="text-slate-500">Purchase power</a>
+        <a
+          href="./savings-goal.html"
+          aria-current="page"
+          class="font-semibold text-slate-900"
+          >Savings goal</a
+        >
+      </nav>
+
+      <header class="mt-3">
+        <h1 class="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          Saving up for something
+        </h1>
+        <p class="mt-1 text-sm text-slate-600">
+          Pick a thing, put a price on it, and see how long your weekly saving
+          takes to get there.
+        </p>
+      </header>
+
+      <div
+        class="sticky top-0 z-10 -mx-4 mt-4 bg-slate-50/95 px-4 py-2 backdrop-blur lg:hidden"
+      >
+        <div
+          role="tablist"
+          aria-label="View"
+          class="flex rounded-xl bg-slate-200/70 p-1 text-sm font-semibold"
+        >
+          <button
+            type="button"
+            role="tab"
+            data-view="chart"
+            aria-selected="true"
+            class="flex-1 rounded-lg bg-white px-3 py-2 text-slate-900 shadow-sm"
+          >
+            Progress
+          </button>
+          <button
+            type="button"
+            role="tab"
+            data-view="inputs"
+            aria-selected="false"
+            class="flex-1 rounded-lg px-3 py-2 text-slate-500"
+          >
+            My plan
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-4 lg:mt-6 lg:grid-cols-3 lg:items-start lg:gap-6">
+        <!-- Inputs -->
+        <section id="pane-inputs" class="card lg:col-span-1">
+          <h2 class="text-base font-semibold text-slate-900">My plan</h2>
+          <label class="mt-3 block">
+            <span
+              class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+              >What are you saving for?</span
+            >
+            <input
+              id="goalName"
+              type="text"
+              value="New bike"
+              maxlength="40"
+              class="field"
+            />
+          </label>
+          <div class="mt-3 grid grid-cols-2 gap-3">
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >It costs ($)</span
+              >
+              <input id="target" type="number" value="40" min="1" step="5" class="field" />
+            </label>
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >Saved so far ($)</span
+              >
+              <input id="saved" type="number" value="6.50" min="0" step="0.5" class="field" />
+            </label>
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >Each week ($)</span
+              >
+              <input id="weekly" type="number" value="5" min="0" step="0.5" class="field" />
+            </label>
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >Interest (%)</span
+              >
+              <input id="rate" type="number" value="4" min="0" max="30" step="0.5" class="field" />
+            </label>
+          </div>
+          <p class="mt-3 text-xs text-slate-500">
+            Use the rate your savings account actually pays. Nothing here moves
+            money — it is a what-if.
+          </p>
+        </section>
+
+        <!-- Progress -->
+        <section id="pane-chart" class="space-y-3 lg:col-span-2 lg:space-y-4">
+          <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 sm:p-5">
+            <p
+              id="heroLabel"
+              class="text-[11px] font-semibold uppercase tracking-wide text-emerald-800"
+            >
+              Time to go
+            </p>
+            <p
+              id="heroValue"
+              class="mt-1 text-3xl font-bold tabular-nums tracking-tight text-emerald-700"
+            >
+              —
+            </p>
+            <p id="heroNote" class="mt-1 text-xs text-emerald-900/70"></p>
+          </div>
+
+          <div class="card">
+            <div class="flex items-baseline justify-between gap-2">
+              <h2 id="goalTitle" class="text-base font-semibold text-slate-900">
+                New bike
+              </h2>
+              <p id="progressPct" class="text-xs font-semibold text-emerald-700">0%</p>
+            </div>
+            <div class="mt-2 h-3 w-full overflow-hidden rounded-full bg-slate-200">
+              <div
+                id="progressBar"
+                class="h-3 rounded-full bg-emerald-500 transition-all"
+                style="width: 0%"
+              ></div>
+            </div>
+            <p id="progressText" class="mt-2 text-xs text-slate-600"></p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="card">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                You put in
+              </p>
+              <p id="kpiDeposits" class="mt-1 text-xl font-bold tabular-nums text-slate-900">
+                $0
+              </p>
+            </div>
+            <div class="card">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Interest adds
+              </p>
+              <p id="kpiInterest" class="mt-1 text-xl font-bold tabular-nums text-emerald-700">
+                $0
+              </p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="flex items-baseline justify-between gap-2">
+              <h2 class="text-base font-semibold text-slate-900">Getting there</h2>
+              <p class="text-[11px] text-slate-500">dashed line = the price</p>
+            </div>
+            <div class="relative mt-3 h-56 sm:h-72">
+              <canvas id="goalChart"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <p
+              id="stretch"
+              class="text-sm text-slate-700"
+            ></p>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      let goalChart = null;
+
+      function formatCurrency(val) {
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: val < 1000 ? 2 : 0,
+        }).format(val);
+      }
+
+      function readNumber(id) {
+        return parseFloat(document.getElementById(id).value) || 0;
+      }
+
+      // Weekly deposits at the end of each week, interest compounding weekly.
+      function project({ target, saved, weekly, annualRate, limit = 2600 }) {
+        const weeklyRate =
+          annualRate > 0 ? Math.pow(1 + annualRate, 1 / 52) - 1 : 0;
+        const series = [saved];
+        let balance = saved;
+        let weeks = 0;
+        while (balance < target && weeks < limit) {
+          balance = balance * (1 + weeklyRate) + weekly;
+          weeks += 1;
+          series.push(balance);
+        }
+        return {
+          weeks,
+          reached: balance >= target,
+          series,
+          endBalance: balance,
+          weeklyRate,
+        };
+      }
+
+      function plural(count, word) {
+        return `${count} ${word}${count === 1 ? "" : "s"}`;
+      }
+
+      function render() {
+        const name = document.getElementById("goalName").value.trim() || "your goal";
+        const target = Math.max(1, readNumber("target"));
+        const saved = Math.max(0, readNumber("saved"));
+        const weekly = Math.max(0, readNumber("weekly"));
+        const rate = readNumber("rate") / 100;
+
+        const plan = project({ target, saved, weekly, annualRate: rate });
+        const stretch = project({
+          target,
+          saved,
+          weekly: weekly + 5,
+          annualRate: rate,
+        });
+
+        // Progress
+        const percent = Math.min(100, Math.max(0, (saved / target) * 100));
+        document.getElementById("goalTitle").textContent = name;
+        document.getElementById("progressPct").textContent = `${percent.toFixed(0)}%`;
+        document.getElementById("progressBar").style.width = `${percent}%`;
+        document.getElementById("progressText").textContent =
+          `${formatCurrency(Math.min(saved, target))} of ${formatCurrency(target)}` +
+          (saved >= target ? " — you're there." : ` — ${formatCurrency(target - saved)} to go.`);
+
+        // Headline
+        const heroValue = document.getElementById("heroValue");
+        const heroNote = document.getElementById("heroNote");
+        const heroLabel = document.getElementById("heroLabel");
+
+        if (saved >= target) {
+          heroLabel.textContent = "Already saved";
+          heroValue.textContent = "Done";
+          heroNote.textContent = `You have enough for ${name}.`;
+        } else if (!plan.reached) {
+          heroLabel.textContent = "No finish line yet";
+          heroValue.textContent = "—";
+          heroNote.textContent =
+            weekly > 0
+              ? "That weekly amount is too small for this price. Try a bigger one."
+              : "Add a weekly amount to see when you get there.";
+        } else {
+          const weeks = plan.weeks;
+          const months = Math.round(weeks / 4.345);
+          const date = new Date(Date.now() + weeks * 7 * 86400000);
+          heroLabel.textContent = "Time to go";
+          heroValue.textContent = plural(weeks, "week");
+          heroNote.textContent =
+            (months >= 2 ? `about ${plural(months, "month")} — ` : "") +
+            `around ${date.toLocaleDateString(undefined, {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}.`;
+        }
+
+        // What the plan costs
+        const deposits = weekly * plan.weeks;
+        const interest = Math.max(0, plan.endBalance - saved - deposits);
+        document.getElementById("kpiDeposits").textContent = formatCurrency(deposits);
+        document.getElementById("kpiInterest").textContent = formatCurrency(interest);
+
+        // The nudge
+        const stretchEl = document.getElementById("stretch");
+        if (saved >= target) {
+          stretchEl.textContent = "Pick something bigger and see what it takes.";
+        } else if (!plan.reached) {
+          stretchEl.textContent = `Saving an extra $5 a week would still not be enough for ${name}.`;
+        } else if (stretch.reached && stretch.weeks < plan.weeks) {
+          const sooner = plan.weeks - stretch.weeks;
+          stretchEl.textContent =
+            `Saving ${formatCurrency(5)} more each week gets you there ` +
+            `${plural(sooner, "week")} sooner — ${formatCurrency(weekly + 5)} a week instead of ${formatCurrency(weekly)}.`;
+        } else {
+          stretchEl.textContent =
+            "Once you are saving every week, the waiting is the only part left.";
+        }
+
+        renderChart(plan, target, weekly);
+      }
+
+      function renderChart(plan, target, weekly) {
+        const points = plan.series.slice(0, Math.min(plan.series.length, 260));
+        const labels = points.map((_, week) => week);
+        const goalLine = points.map(() => target);
+
+        if (goalChart) goalChart.destroy();
+
+        goalChart = new Chart(
+          document.getElementById("goalChart").getContext("2d"),
+          {
+            type: "line",
+            data: {
+              labels,
+              datasets: [
+                {
+                  label: "Saved",
+                  data: points,
+                  borderColor: "#10b981",
+                  backgroundColor: "rgba(16, 185, 129, 0.12)",
+                  fill: true,
+                  tension: 0.25,
+                  pointRadius: 0,
+                  borderWidth: 2,
+                },
+                {
+                  label: "Price",
+                  data: goalLine,
+                  borderColor: "#64748b",
+                  borderDash: [6, 4],
+                  backgroundColor: "transparent",
+                  pointRadius: 0,
+                  borderWidth: 1.5,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: "index", intersect: false },
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: { boxWidth: 10, boxHeight: 2, padding: 10, font: { size: 10 } },
+                },
+                tooltip: {
+                  callbacks: {
+                    title: (items) => `Week ${items[0].label}`,
+                    label: (context) =>
+                      `${context.dataset.label}: ${formatCurrency(context.parsed.y)}`,
+                  },
+                },
+              },
+              scales: {
+                x: {
+                  grid: { display: false },
+                  ticks: { maxTicksLimit: 6, font: { size: 10 } },
+                  title: {
+                    display: true,
+                    text: "weeks from now",
+                    font: { size: 10 },
+                    color: "#64748b",
+                  },
+                },
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    font: { size: 10 },
+                    callback: (value) => "$" + value,
+                  },
+                },
+              },
+            },
+          },
+        );
+      }
+
+      // Phone tabs
+      const viewTabs = Array.from(document.querySelectorAll("[data-view]"));
+      viewTabs.forEach((tab) => {
+        tab.addEventListener("click", () => setView(tab.dataset.view));
+      });
+
+      function setView(view) {
+        document.body.dataset.view = view;
+        viewTabs.forEach((tab) => {
+          const on = tab.dataset.view === view;
+          tab.setAttribute("aria-selected", on ? "true" : "false");
+          tab.classList.toggle("bg-white", on);
+          tab.classList.toggle("text-slate-900", on);
+          tab.classList.toggle("shadow-sm", on);
+          tab.classList.toggle("text-slate-500", !on);
+        });
+      }
+
+      ["goalName", "target", "saved", "weekly", "rate"].forEach((id) => {
+        document.getElementById(id).addEventListener("input", render);
+      });
+
+      render();
+    </script>
+  </body>
+</html>
