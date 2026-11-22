@@ -2,221 +2,239 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#1f6f4a" />
-    <title>Break-Even & Discretionary Cash Calculator</title>
+    <title>Break-Even &amp; Purchase Power</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .field {
+        width: 100%;
+        margin-top: 0.25rem;
+        padding: 0.55rem 0.7rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.6rem;
+        background: #fff;
+        color: #1e293b;
+        font: inherit;
+        font-size: 1rem;
+      }
+      .field:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: -1px;
+      }
+      .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #fff;
+        padding: 1rem;
+        box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+      }
+      @media (min-width: 640px) {
+        .card {
+          padding: 1.5rem;
+        }
+      }
+      /* Phones show one pane at a time; from 1024px both sit side by side. */
+      @media (max-width: 1023px) {
+        body[data-view="chart"] #pane-inputs,
+        body[data-view="inputs"] #pane-chart {
+          display: none;
+        }
+      }
+    </style>
   </head>
-  <body class="bg-slate-50 text-slate-800 font-sans p-4 md:p-8">
-    <nav class="max-w-6xl mx-auto mb-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-      <a href="./index.html" class="text-blue-600 hover:underline"
-        >&larr; Family Bank</a
-      >
-      <a href="./compounding.html" class="text-blue-600 hover:underline"
-        >Compounding Calculator</a
-      >
-      <a href="./purchase-power.html" class="font-semibold text-slate-900"
-        >Purchase Power</a
-      >
-    </nav>
-    <div class="max-w-6xl mx-auto space-y-6">
-      <!-- Header -->
-      <header
-        class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"
-      >
-        <h1 class="text-2xl font-bold text-slate-900">
-          Dynamic Break-Even & Purchasing Power Calculator
+  <body
+    data-view="chart"
+    class="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased"
+  >
+    <div class="mx-auto w-full max-w-xl px-4 pb-16 pt-4 sm:px-6 lg:max-w-6xl lg:pt-8">
+      <nav class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+        <a href="./index.html" class="font-medium text-emerald-700"
+          >&larr; Family Bank</a
+        >
+        <a href="./compounding.html" class="text-slate-500">Compounding</a>
+        <a
+          href="./purchase-power.html"
+          aria-current="page"
+          class="font-semibold text-slate-900"
+          >Purchase power</a
+        >
+        <a href="./savings-goal.html" class="text-slate-500">Savings goal</a>
+      </nav>
+
+      <header class="mt-3">
+        <h1 class="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          What a paycheck has to cover
         </h1>
-        <p class="text-sm text-slate-600 mt-1">
-          Calculate true discretionary cash (positive surplus or negative
-          deficit) across eras without forced percentage limits. Defaults to
-          Pittsburgh metro median household income: $18,800 (1980 Census) vs
-          $75,762 (ACS 2020&ndash;24).
+        <p class="mt-1 text-sm text-slate-600">
+          Two households, 1980 and now. Same country, very different pile of
+          money left at the end of the year. Defaults are Pittsburgh metro
+          medians.
         </p>
       </header>
 
-      <!-- Main Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Controls Panel -->
+      <div
+        class="sticky top-0 z-10 -mx-4 mt-4 bg-slate-50/95 px-4 py-2 backdrop-blur lg:hidden"
+      >
         <div
-          class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 lg:col-span-1"
+          role="tablist"
+          aria-label="View"
+          class="flex rounded-xl bg-slate-200/70 p-1 text-sm font-semibold"
         >
-          <h2 class="text-lg font-semibold text-slate-900 border-b pb-2">
-            Household Gross Salary Inputs
-          </h2>
-
-          <div>
-            <label
-              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
-              >Then Household Gross ($)</label
-            >
-            <input
-              type="number"
-              id="thenGross"
-              value="18800"
-              step="1000"
-              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            <span class="text-[10px] text-slate-400"
-              >Pittsburgh metro median, 1980 Census</span
-            >
-          </div>
-
-          <div>
-            <label
-              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
-              >Now Household Gross ($)</label
-            >
-            <input
-              type="number"
-              id="nowGross"
-              value="75762"
-              step="5000"
-              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            <span class="text-[10px] text-slate-400"
-              >Pittsburgh metro median, ACS 2020&ndash;24</span
-            >
-          </div>
-
-          <div class="grid grid-cols-2 gap-3 pt-2">
-            <div>
-              <label
-                class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
-                >Then Earners</label
-              >
-              <select
-                id="thenEarners"
-                class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              >
-                <option value="1" selected>1 Earner</option>
-                <option value="2">2 Earners</option>
-              </select>
-            </div>
-            <div>
-              <label
-                class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
-                >Now Earners</label
-              >
-              <select
-                id="nowEarners"
-                class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              >
-                <option value="1">1 Earner</option>
-                <option value="2" selected>2 Earners</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="pt-4 border-t">
-            <button
-              onclick="resetDefaults()"
-              class="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs rounded-lg transition-colors"
-            >
-              Reset Default Scenario
-            </button>
-          </div>
+          <button
+            type="button"
+            role="tab"
+            data-view="chart"
+            aria-selected="true"
+            class="flex-1 rounded-lg bg-white px-3 py-2 text-slate-900 shadow-sm"
+          >
+            Chart
+          </button>
+          <button
+            type="button"
+            role="tab"
+            data-view="inputs"
+            aria-selected="false"
+            class="flex-1 rounded-lg px-3 py-2 text-slate-500"
+          >
+            Inputs
+          </button>
         </div>
+      </div>
 
-        <!-- Summary Cards & Chart -->
-        <div class="space-y-6 lg:col-span-2">
-          <!-- KPI Cards Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div
-              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
-            >
-              <p class="text-xs font-medium text-slate-500 uppercase">
-                Then Discretionary Cash
-              </p>
-              <p id="kpiThenDisc" class="text-xl font-bold text-blue-600 mt-1">
-                $7,030
-              </p>
-              <p id="kpiThenPct" class="text-xs text-slate-500 mt-1">
-                37.0% of Gross
-              </p>
-            </div>
-
-            <div
-              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
-            >
-              <p class="text-xs font-medium text-slate-500 uppercase">
-                Now Discretionary Cash
-              </p>
-              <p
-                id="kpiNowDisc"
-                class="text-xl font-bold text-emerald-600 mt-1"
+      <div class="mt-4 grid gap-4 lg:mt-6 lg:grid-cols-3 lg:items-start lg:gap-6">
+        <!-- Inputs -->
+        <section id="pane-inputs" class="card lg:col-span-1">
+          <h2 class="text-base font-semibold text-slate-900">Households</h2>
+          <div class="mt-3 grid grid-cols-2 gap-3">
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >1980 gross ($)</span
               >
+              <input id="thenGross" type="number" value="18800" step="1000" class="field" />
+            </label>
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >Now gross ($)</span
+              >
+              <input id="nowGross" type="number" value="75762" step="5000" class="field" />
+            </label>
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >1980 earners</span
+              >
+              <select id="thenEarners" class="field">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+              </select>
+            </label>
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >Now earners</span
+              >
+              <select id="nowEarners" class="field">
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+              </select>
+            </label>
+          </div>
+          <p class="mt-3 text-xs text-slate-500">
+            A second earner adds childcare and a second car, so the extra
+            paycheck is not all profit.
+          </p>
+          <button
+            type="button"
+            onclick="resetDefaults()"
+            class="mt-3 w-full rounded-lg bg-slate-100 py-2.5 text-xs font-semibold text-slate-700"
+          >
+            Reset to the default scenario
+          </button>
+          <p
+            id="inputsSummary"
+            class="mt-3 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700"
+          ></p>
+        </section>
+
+        <!-- Chart + numbers -->
+        <section id="pane-chart" class="space-y-3 lg:col-span-2 lg:space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="card">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                1980 left over
+              </p>
+              <p id="kpiThenDisc" class="mt-1 text-xl font-bold tabular-nums text-blue-600">
                 $0
               </p>
-              <p id="kpiNowPct" class="text-xs text-slate-500 mt-1">
-                0.0% of Gross
-              </p>
+              <p id="kpiThenPct" class="mt-0.5 text-[11px] text-slate-500">0% of gross</p>
             </div>
-
-            <div
-              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 bg-slate-100/50"
-            >
-              <p class="text-xs font-medium text-slate-500 uppercase">
-                Target Break-Even Income
+            <div class="card">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Now left over
               </p>
-              <p
-                id="kpiBreakEven"
-                class="text-xl font-bold text-purple-700 mt-1"
-              >
-                $124,800
+              <p id="kpiNowDisc" class="mt-1 text-xl font-bold tabular-nums text-emerald-600">
+                $0
               </p>
-              <p class="text-xs text-slate-500 mt-1">
-                To match 1980 real purchasing power
-              </p>
+              <p id="kpiNowPct" class="mt-0.5 text-[11px] text-slate-500">0% of gross</p>
             </div>
           </div>
 
-          <!-- Stacked Bar Chart -->
-          <div
-            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"
-          >
-            <h2 class="text-lg font-semibold text-slate-900 mb-1">
-              Budget Allocation Breakdown
-            </h2>
-            <p class="text-xs text-slate-500 mb-4">
-              Visualizing fixed expenses, taxes, and net discretionary cash (or
-              deficit).
-            </p>
-            <div class="relative h-72">
+          <div class="card">
+            <div class="flex items-baseline justify-between gap-2">
+              <h2 class="text-base font-semibold text-slate-900">Where it goes</h2>
+              <p class="text-[11px] text-slate-500">one bar per era</p>
+            </div>
+            <div class="relative mt-3 h-64 sm:h-72">
               <canvas id="budgetChart"></canvas>
             </div>
           </div>
-        </div>
+
+          <div class="card">
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+              Income needed to match 1980
+            </p>
+            <p id="kpiBreakEven" class="mt-1 text-xl font-bold tabular-nums text-purple-700">
+              $0
+            </p>
+            <p class="mt-1 text-xs text-slate-500">
+              Same real cash left over, with today's fixed costs.
+            </p>
+          </div>
+        </section>
       </div>
 
-      <!-- Detailed Line Item Table -->
-      <div
-        class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 overflow-x-auto"
-      >
-        <h2 class="text-lg font-semibold text-slate-900 mb-4">
-          Line-Item Cost Breakdown
-        </h2>
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr
-              class="border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider"
-            >
-              <th class="py-3 px-3">Budget Category</th>
-              <th class="py-3 px-3">Then ($ Annual)</th>
-              <th class="py-3 px-3">Then %</th>
-              <th class="py-3 px-3">Now ($ Annual)</th>
-              <th class="py-3 px-3">Now %</th>
-              <th class="py-3 px-3">Net Cost Shift</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody" class="divide-y divide-slate-100 text-sm">
-            <!-- Populated via JS -->
-          </tbody>
-        </table>
-      </div>
+      <!-- Line items: cards on phones, table on wide screens -->
+      <section class="card mt-4 lg:mt-6">
+        <h2 class="text-base font-semibold text-slate-900">Line by line</h2>
+
+        <ol id="itemList" class="mt-2 divide-y divide-slate-100 lg:hidden"></ol>
+
+        <div class="mt-3 hidden overflow-x-auto lg:block">
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr
+                class="border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-600"
+              >
+                <th class="px-3 py-3">Category</th>
+                <th class="px-3 py-3">1980</th>
+                <th class="px-3 py-3">1980 %</th>
+                <th class="px-3 py-3">Now</th>
+                <th class="px-3 py-3">Now %</th>
+                <th class="px-3 py-3">Shift</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody" class="divide-y divide-slate-100 text-sm">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
 
     <!-- Script Logic -->
@@ -303,20 +321,22 @@
         const breakEvenSalary =
           (targetRealBuffer + fixedOverhead) / (1.0 - 0.22 - 0.1);
 
-        // Update KPI Cards
+        // Update summary cards
         document.getElementById("kpiThenDisc").innerText =
           formatCurrency(thenDiscretionary);
         document.getElementById("kpiThenPct").innerText =
-          `${thenGross > 0 ? ((thenDiscretionary / thenGross) * 100).toFixed(1) : 0}% of Gross`;
+          `${thenGross > 0 ? ((thenDiscretionary / thenGross) * 100).toFixed(1) : 0}% of gross`;
 
         const kpiNowEl = document.getElementById("kpiNowDisc");
         kpiNowEl.innerText = formatCurrency(nowDiscretionary);
-        kpiNowEl.className = `text-xl font-bold mt-1 ${nowDiscretionary >= 0 ? "text-emerald-600" : "text-rose-600"}`;
+        kpiNowEl.className = `mt-1 text-xl font-bold tabular-nums ${nowDiscretionary >= 0 ? "text-emerald-600" : "text-rose-600"}`;
 
         document.getElementById("kpiNowPct").innerText =
-          `${nowGross > 0 ? ((nowDiscretionary / nowGross) * 100).toFixed(1) : 0}% of Gross`;
+          `${nowGross > 0 ? ((nowDiscretionary / nowGross) * 100).toFixed(1) : 0}% of gross`;
         document.getElementById("kpiBreakEven").innerText =
           formatCurrency(breakEvenSalary);
+        document.getElementById("inputsSummary").innerText =
+          `${thenEarners} earner in 1980, ${nowEarners} now.`;
 
         // Table Data
         const items = [
@@ -369,15 +389,15 @@
           const tr = document.createElement("tr");
           tr.className = "hover:bg-slate-50 transition-colors";
           tr.innerHTML = `
-                    <td class="py-3 px-3 font-medium text-slate-800 flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${c.color}"></span>
+                    <td class="px-3 py-3 font-medium text-slate-800">
+                        <span class="mr-2 inline-block h-3 w-3 rounded-full align-middle" style="background-color: ${c.color}"></span>
                         ${c.name}
                     </td>
-                    <td class="py-3 px-3 text-slate-600">${formatCurrency(c.thenVal)}</td>
-                    <td class="py-3 px-3 text-slate-500">${thenPct.toFixed(1)}%</td>
-                    <td class="py-3 px-3 text-slate-600">${formatCurrency(c.nowVal)}</td>
-                    <td class="py-3 px-3 text-slate-500">${nowPct.toFixed(1)}%</td>
-                    <td class="py-3 px-3 font-semibold ${diffVal > 0 ? "text-rose-600" : "text-emerald-600"}">
+                    <td class="px-3 py-3 tabular-nums text-slate-600">${formatCurrency(c.thenVal)}</td>
+                    <td class="px-3 py-3 tabular-nums text-slate-500">${thenPct.toFixed(1)}%</td>
+                    <td class="px-3 py-3 tabular-nums text-slate-600">${formatCurrency(c.nowVal)}</td>
+                    <td class="px-3 py-3 tabular-nums text-slate-500">${nowPct.toFixed(1)}%</td>
+                    <td class="px-3 py-3 font-semibold tabular-nums ${diffVal > 0 ? "text-rose-600" : "text-emerald-600"}">
                         ${diffVal > 0 ? "+" : ""}${formatCurrency(diffVal)}
                     </td>
                 `;
@@ -393,15 +413,16 @@
           thenGross > 0 ? (thenDiscretionary / thenGross) * 100 : 0;
 
         discTr.innerHTML = `
-                <td class="py-3 px-3 ${nowDiscretionary >= 0 ? "text-emerald-800" : "text-rose-800"}">DISCRETIONARY "FREE-TO-SPEND" CASH</td>
-                <td class="py-3 px-3 text-blue-700">${formatCurrency(thenDiscretionary)}</td>
-                <td class="py-3 px-3 text-blue-700">${thenDiscPct.toFixed(1)}%</td>
-                <td class="py-3 px-3 ${nowDiscretionary >= 0 ? "text-emerald-700" : "text-rose-700"}">${formatCurrency(nowDiscretionary)}</td>
-                <td class="py-3 px-3 ${nowDiscretionary >= 0 ? "text-emerald-700" : "text-rose-700"}">${nowDiscPct.toFixed(1)}%</td>
-                <td class="py-3 px-3 text-slate-700">${formatCurrency(nowDiscretionary - thenDiscretionary)}</td>
+                <td class="px-3 py-3 ${nowDiscretionary >= 0 ? "text-emerald-800" : "text-rose-800"}">LEFT OVER</td>
+                <td class="px-3 py-3 tabular-nums text-blue-700">${formatCurrency(thenDiscretionary)}</td>
+                <td class="px-3 py-3 tabular-nums text-blue-700">${thenDiscPct.toFixed(1)}%</td>
+                <td class="px-3 py-3 tabular-nums ${nowDiscretionary >= 0 ? "text-emerald-700" : "text-rose-700"}">${formatCurrency(nowDiscretionary)}</td>
+                <td class="px-3 py-3 tabular-nums ${nowDiscretionary >= 0 ? "text-emerald-700" : "text-rose-700"}">${nowDiscPct.toFixed(1)}%</td>
+                <td class="px-3 py-3 tabular-nums text-slate-700">${formatCurrency(nowDiscretionary - thenDiscretionary)}</td>
             `;
         tbody.appendChild(discTr);
 
+        renderItemList(items, thenGross, nowGross);
         renderChart(
           items,
           thenDiscretionary,
@@ -409,6 +430,42 @@
           thenEarners,
           nowEarners,
         );
+      }
+
+      // The phone version of the table: category, then an era each.
+      function renderItemList(items, thenGross, nowGross) {
+        const list = document.getElementById("itemList");
+        list.replaceChildren();
+        items.forEach((c) => {
+          const li = document.createElement("li");
+          li.className = "py-3";
+
+          const head = document.createElement("div");
+          head.className = "flex items-baseline gap-2";
+
+          const dot = document.createElement("span");
+          dot.className = "mt-1 h-2.5 w-2.5 shrink-0 rounded-full";
+          dot.style.backgroundColor = c.color;
+
+          const name = document.createElement("span");
+          name.className = "text-sm font-medium text-slate-800";
+          name.textContent = c.name;
+
+          head.append(dot, name);
+
+          const thenPct = thenGross > 0 ? (c.thenVal / thenGross) * 100 : 0;
+          const nowPct = nowGross > 0 ? (c.nowVal / nowGross) * 100 : 0;
+
+          const values = document.createElement("div");
+          values.className =
+            "mt-1 flex justify-between pl-4 text-xs tabular-nums text-slate-600";
+          values.innerHTML =
+            `<span>1980 ${formatCurrency(c.thenVal)} (${thenPct.toFixed(0)}%)</span>` +
+            `<span>now ${formatCurrency(c.nowVal)} (${nowPct.toFixed(0)}%)</span>`;
+
+          li.append(head, values);
+          list.append(li);
+        });
       }
 
       function renderChart(items, thenDisc, nowDisc, thenEarners, nowEarners) {
@@ -422,7 +479,7 @@
 
         // Add discretionary cash layer
         datasets.push({
-          label: "Discretionary Surplus (or Deficit)",
+          label: "Left over (or short)",
           data: [Math.round(thenDisc), Math.round(nowDisc)],
           backgroundColor: nowDisc >= 0 ? "#10b981" : "#f43f5e",
         });
@@ -434,20 +491,18 @@
         budgetChart = new Chart(ctx, {
           type: "bar",
           data: {
-            labels: [
-              `Then (${thenEarners} Earner)`,
-              `Now (${nowEarners} Earners)`,
-            ],
+            labels: [`1980 (${thenEarners} earner)`, `Now (${nowEarners} earners)`],
             datasets: datasets,
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-              x: { stacked: true },
+              x: { stacked: true, grid: { display: false } },
               y: {
                 stacked: true,
                 ticks: {
+                  font: { size: 10 },
                   callback: function (value) {
                     return "$" + (value / 1000).toFixed(0) + "k";
                   },
@@ -457,7 +512,7 @@
             plugins: {
               legend: {
                 position: "bottom",
-                labels: { boxWidth: 10, font: { size: 10 } },
+                labels: { boxWidth: 10, boxHeight: 2, padding: 8, font: { size: 9 } },
               },
               tooltip: {
                 callbacks: {
@@ -471,10 +526,26 @@
         });
       }
 
+      // Phone tabs
+      const viewTabs = Array.from(document.querySelectorAll("[data-view]"));
+      viewTabs.forEach((tab) => {
+        tab.addEventListener("click", () => setView(tab.dataset.view));
+      });
+
+      function setView(view) {
+        document.body.dataset.view = view;
+        viewTabs.forEach((tab) => {
+          const on = tab.dataset.view === view;
+          tab.setAttribute("aria-selected", on ? "true" : "false");
+          tab.classList.toggle("bg-white", on);
+          tab.classList.toggle("text-slate-900", on);
+          tab.classList.toggle("shadow-sm", on);
+          tab.classList.toggle("text-slate-500", !on);
+        });
+      }
+
       ["thenGross", "nowGross", "thenEarners", "nowEarners"].forEach((id) => {
-        document
-          .getElementById(id)
-          .addEventListener("input", calculateAndRender);
+        document.getElementById(id).addEventListener("input", calculateAndRender);
       });
 
       calculateAndRender();

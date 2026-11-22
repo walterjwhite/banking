@@ -2,297 +2,264 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#1f6f4a" />
-    <title>Compound Interest & Wealth Retention Calculator</title>
+    <title>Compounding Calculator</title>
     <!-- Tailwind CSS for clean, modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js for interactive visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .field {
+        width: 100%;
+        margin-top: 0.25rem;
+        padding: 0.55rem 0.7rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.6rem;
+        background: #fff;
+        color: #1e293b;
+        font: inherit;
+        font-size: 1rem;
+      }
+      .field:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: -1px;
+      }
+      .card {
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #fff;
+        padding: 1rem;
+        box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+      }
+      @media (min-width: 640px) {
+        .card {
+          padding: 1.5rem;
+        }
+      }
+      /* Phones show one pane at a time; from 1024px both sit side by side. */
+      @media (max-width: 1023px) {
+        body[data-view="chart"] #pane-inputs,
+        body[data-view="inputs"] #pane-chart {
+          display: none;
+        }
+      }
+    </style>
   </head>
-  <body class="bg-slate-50 text-slate-800 font-sans min-p-4 md:p-8">
-    <nav class="max-w-6xl mx-auto mb-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-      <a href="./index.html" class="text-blue-600 hover:underline"
-        >&larr; Family Bank</a
-      >
-      <a href="./compounding.html" class="font-semibold text-slate-900"
-        >Compounding Calculator</a
-      >
-      <a href="./purchase-power.html" class="text-blue-600 hover:underline"
-        >Purchase Power</a
-      >
-    </nav>
-    <div class="max-w-6xl mx-auto space-y-6">
-      <!-- Header -->
-      <header
-        class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"
-      >
-        <h1 class="text-2xl font-bold text-slate-900">
-          Compounding Investment & Wealth Retention Calculator
+  <body
+    data-view="chart"
+    class="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased"
+  >
+    <div class="mx-auto w-full max-w-xl px-4 pb-16 pt-4 sm:px-6 lg:max-w-6xl lg:pt-8">
+      <nav class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+        <a href="./index.html" class="font-medium text-emerald-700"
+          >&larr; Family Bank</a
+        >
+        <a
+          href="./compounding.html"
+          aria-current="page"
+          class="font-semibold text-slate-900"
+          >Compounding</a
+        >
+        <a href="./purchase-power.html" class="text-slate-500"
+          >Purchase power</a
+        >
+        <a href="./savings-goal.html" class="text-slate-500">Savings goal</a>
+      </nav>
+
+      <header class="mt-3">
+        <h1 class="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          What compounding does
         </h1>
-        <p class="text-sm text-slate-600 mt-1">
-          Explore how micro-contributions or lump sums compound over time,
-          comparing invested growth against uninvested cash, tax drag,
-          inflation, and your net real return rate.
+        <p class="mt-1 text-sm text-slate-600">
+          Start with a little, add a little every month, and watch the gap grow
+          between money that works and money that sits still.
         </p>
       </header>
 
-      <!-- Main Grid: Controls & Summary Cards -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Controls Panel -->
+      <!-- Phone view switch -->
+      <div
+        class="sticky top-0 z-10 -mx-4 mt-4 bg-slate-50/95 px-4 py-2 backdrop-blur lg:hidden"
+      >
         <div
-          class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4 lg:col-span-1"
+          role="tablist"
+          aria-label="View"
+          class="flex rounded-xl bg-slate-200/70 p-1 text-sm font-semibold"
         >
-          <h2 class="text-lg font-semibold text-slate-900 border-b pb-2">
-            Simulation Parameters
-          </h2>
+          <button
+            type="button"
+            role="tab"
+            data-view="chart"
+            aria-selected="true"
+            class="flex-1 rounded-lg bg-white px-3 py-2 text-slate-900 shadow-sm"
+          >
+            Chart
+          </button>
+          <button
+            type="button"
+            role="tab"
+            data-view="inputs"
+            aria-selected="false"
+            class="flex-1 rounded-lg px-3 py-2 text-slate-500"
+          >
+            Inputs
+          </button>
+        </div>
+      </div>
 
-          <div>
-            <label
-              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
-              >Initial Starting Principal ($)</label
-            >
-            <input
-              type="number"
-              id="initial"
-              value="1"
-              min="0"
-              step="10"
-              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
+      <div class="mt-4 grid gap-4 lg:mt-6 lg:grid-cols-3 lg:items-start lg:gap-6">
+        <!-- Inputs -->
+        <section id="pane-inputs" class="card lg:col-span-1">
+          <h2 class="text-base font-semibold text-slate-900">Inputs</h2>
+          <div class="mt-3 grid grid-cols-2 gap-3">
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >Starting ($)</span
+              >
+              <input id="initial" type="number" value="1" min="0" step="10" class="field" />
+            </label>
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >Monthly ($)</span
+              >
+              <input id="monthly" type="number" value="0" min="0" step="5" class="field" />
+            </label>
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >Return (%)</span
+              >
+              <input id="rate" type="number" value="7" min="0" max="30" step="0.5" class="field" />
+            </label>
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >Inflation (%)</span
+              >
+              <input id="inflation" type="number" value="2.5" min="0" max="15" step="0.5" class="field" />
+            </label>
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >Tax on gains (%)</span
+              >
+              <input id="taxRate" type="number" value="15" min="0" max="50" step="1" class="field" />
+            </label>
+            <label class="block">
+              <span
+                class="text-[11px] font-semibold uppercase tracking-wide text-slate-500"
+                >Years</span
+              >
+              <input id="years" type="number" value="30" min="1" max="50" step="1" class="field" />
+            </label>
           </div>
+          <p class="mt-3 text-xs text-slate-500">
+            Tax is applied to the investment gains when you cash out; inflation
+            shrinks what the rest can buy.
+          </p>
+          <p
+            id="inputsSummary"
+            class="mt-3 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-700"
+          ></p>
+        </section>
 
-          <div>
-            <label
-              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
-              >Monthly Contribution ($)</label
+        <!-- Chart + numbers -->
+        <section id="pane-chart" class="space-y-3 lg:col-span-2 lg:space-y-4">
+          <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 sm:p-5">
+            <p class="text-[11px] font-semibold uppercase tracking-wide text-emerald-800">
+              What it can buy
+            </p>
+            <p
+              id="kpiNetReal"
+              class="mt-1 text-3xl font-bold tabular-nums tracking-tight text-emerald-700"
             >
-            <input
-              type="number"
-              id="monthly"
-              value="0"
-              min="0"
-              step="5"
-              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label
-              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
-              >Nominal Annual Return (%)</label
-            >
-            <input
-              type="number"
-              id="rate"
-              value="7"
-              min="0"
-              max="30"
-              step="0.5"
-              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label
-              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
-              >Annual Inflation Rate (%)</label
-            >
-            <input
-              type="number"
-              id="inflation"
-              value="2.5"
-              min="0"
-              max="15"
-              step="0.5"
-              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label
-              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
-              >Tax Bracket / Effective Tax Rate (%)</label
-            >
-            <input
-              type="number"
-              id="taxRate"
-              value="15"
-              min="0"
-              max="50"
-              step="1"
-              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            <p class="text-xs text-slate-500 mt-1">
-              Applied to accumulated investment earnings (gains) upon
-              realization.
+              $0.00
+            </p>
+            <p class="mt-1 text-xs text-emerald-900/70">
+              Your money in today's prices, after tax and inflation.
             </p>
           </div>
 
-          <div>
-            <label
-              class="block text-xs font-medium text-slate-600 uppercase tracking-wider"
-              >Time Horizon (Years)</label
-            >
-            <input
-              type="number"
-              id="years"
-              value="30"
-              min="1"
-              max="50"
-              step="1"
-              class="mt-1 w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-          </div>
-        </div>
-
-        <!-- Summary Metrics & Chart -->
-        <div class="space-y-6 lg:col-span-2">
-          <!-- KPI Summary Cards -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div
-              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
-            >
-              <p class="text-xs font-medium text-slate-500 uppercase">
-                Nominal Portfolio Value
+          <div class="grid grid-cols-2 gap-3">
+            <div class="card">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                On paper
               </p>
-              <p id="kpiNominal" class="text-2xl font-bold text-slate-900 mt-1">
+              <p id="kpiNominal" class="mt-1 text-xl font-bold tabular-nums text-slate-900">
                 $0.00
               </p>
-              <p class="text-xs text-slate-500 mt-1">
-                Total value on paper before adjustments.
-              </p>
             </div>
-
-            <div
-              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
-            >
-              <p class="text-xs font-medium text-slate-500 uppercase">
-                Net Real Wealth
+            <div class="card">
+              <p class="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                Real return
               </p>
-              <p
-                id="kpiNetReal"
-                class="text-2xl font-bold text-emerald-600 mt-1"
-              >
-                $0.00
-              </p>
-              <p class="text-xs text-slate-500 mt-1">
-                Actual purchasing power after tax & inflation.
-              </p>
-            </div>
-
-            <div
-              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 bg-emerald-50/40"
-            >
-              <p class="text-xs font-medium text-emerald-800 uppercase">
-                Effective Net Real Return
-              </p>
-              <p
-                id="kpiRealRate"
-                class="text-2xl font-bold text-emerald-700 mt-1"
-              >
+              <p id="kpiRealRate" class="mt-1 text-xl font-bold tabular-nums text-slate-900">
                 0.00%
               </p>
-              <p class="text-xs text-slate-500 mt-1">
-                Net annual CAGR after tax drag & inflation loss.
-              </p>
-            </div>
-
-            <div
-              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
-            >
-              <p class="text-xs font-medium text-slate-500 uppercase">
-                Uninvested Cash (Real $)
-              </p>
-              <p
-                id="kpiCashReal"
-                class="text-xl font-semibold text-slate-600 mt-1"
-              >
-                $0.00
-              </p>
-              <p class="text-xs text-slate-500 mt-1">
-                Cash kept out of market (0% return, inflated away).
-              </p>
-            </div>
-
-            <div
-              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
-            >
-              <p class="text-xs font-medium text-amber-600 uppercase">
-                Estimated Tax Drag
-              </p>
-              <p
-                id="kpiTaxLoss"
-                class="text-xl font-semibold text-amber-700 mt-1"
-              >
-                $0.00
-              </p>
-              <p class="text-xs text-slate-500 mt-1">
-                Tax liability on investment growth.
-              </p>
-            </div>
-
-            <div
-              class="bg-white p-5 rounded-xl shadow-sm border border-slate-200"
-            >
-              <p class="text-xs font-medium text-rose-600 uppercase">
-                Inflation Erosion Drag
-              </p>
-              <p
-                id="kpiInflationLoss"
-                class="text-xl font-semibold text-rose-700 mt-1"
-              >
-                $0.00
-              </p>
-              <p class="text-xs text-slate-500 mt-1">
-                Purchasing power lost to inflation.
-              </p>
+              <p class="mt-0.5 text-[11px] text-slate-500">per year</p>
             </div>
           </div>
 
-          <!-- Chart Container -->
-          <div
-            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"
-          >
-            <h2 class="text-lg font-semibold text-slate-900 mb-4">
-              Growth Trajectory & Wealth Retention
-            </h2>
-            <div class="relative h-80">
+          <div class="card">
+            <div class="flex items-baseline justify-between gap-2">
+              <h2 class="text-base font-semibold text-slate-900">Growth</h2>
+              <p class="text-[11px] text-slate-500">hover a point</p>
+            </div>
+            <div class="relative mt-3 h-60 sm:h-80">
               <canvas id="growthChart"></canvas>
             </div>
           </div>
-        </div>
+
+          <div class="card">
+            <dl class="divide-y divide-slate-100 text-sm">
+              <div class="flex items-baseline justify-between gap-3 py-2">
+                <dt class="text-slate-600">Cash left uninvested</dt>
+                <dd id="kpiCashReal" class="font-semibold tabular-nums text-slate-700">$0.00</dd>
+              </div>
+              <div class="flex items-baseline justify-between gap-3 py-2">
+                <dt class="text-slate-600">Tax on the gains</dt>
+                <dd id="kpiTaxLoss" class="font-semibold tabular-nums text-amber-700">$0.00</dd>
+              </div>
+              <div class="flex items-baseline justify-between gap-3 py-2">
+                <dt class="text-slate-600">Lost to inflation</dt>
+                <dd id="kpiInflationLoss" class="font-semibold tabular-nums text-rose-700">
+                  $0.00
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </section>
       </div>
 
-      <!-- Milestone Table -->
-      <div
-        class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 overflow-x-auto"
-      >
-        <h2 class="text-lg font-semibold text-slate-900 mb-4">
-          Time Horizon Breakdown
-        </h2>
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr
-              class="border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider"
-            >
-              <th class="py-3 px-4">Period</th>
-              <th class="py-3 px-4">Total Contributed</th>
-              <th class="py-3 px-4">Nominal Value</th>
-              <th class="py-3 px-4 text-slate-500">Uninvested Cash (Real $)</th>
-              <th class="py-3 px-4 text-amber-600">Estimated Tax Drag</th>
-              <th class="py-3 px-4 text-rose-600">Inflation Drag</th>
-              <th class="py-3 px-4 text-emerald-600">Net Real Wealth</th>
-              <th class="py-3 px-4 text-emerald-700">
-                Net Annual Yield (CAGR)
-              </th>
-            </tr>
-          </thead>
-          <tbody id="tableBody" class="divide-y divide-slate-100 text-sm">
-            <!-- Populated dynamically via JS -->
-          </tbody>
-        </table>
-      </div>
+      <!-- Year by year: cards on phones, table on wide screens -->
+      <section class="card mt-4 lg:mt-6">
+        <h2 class="text-base font-semibold text-slate-900">Year by year</h2>
+        <ol id="yearList" class="mt-2 divide-y divide-slate-100 lg:hidden"></ol>
+
+        <div class="mt-3 hidden overflow-x-auto lg:block">
+          <table class="w-full border-collapse text-left">
+            <thead>
+              <tr
+                class="border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-600"
+              >
+                <th class="px-4 py-3">Period</th>
+                <th class="px-4 py-3">Contributed</th>
+                <th class="px-4 py-3">On paper</th>
+                <th class="px-4 py-3 text-slate-500">Cash (real)</th>
+                <th class="px-4 py-3 text-amber-600">Tax</th>
+                <th class="px-4 py-3 text-rose-600">Inflation</th>
+                <th class="px-4 py-3 text-emerald-600">Real wealth</th>
+                <th class="px-4 py-3 text-emerald-700">Real return</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody" class="divide-y divide-slate-100 text-sm">
+              <!-- Populated dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
 
     <!-- Calculation Script -->
@@ -303,6 +270,7 @@
         return new Intl.NumberFormat("en-US", {
           style: "currency",
           currency: "USD",
+          maximumFractionDigits: val < 1000 ? 2 : 0,
         }).format(val);
       }
 
@@ -373,7 +341,6 @@
         for (let y = 1; y <= maxYears; y++) {
           if (
             maxYears <= 5 ||
-            y === 0.5 ||
             y === 1 ||
             y % Math.ceil(maxYears / 10) === 0 ||
             y === maxYears
@@ -389,8 +356,7 @@
           const nominalFV =
             monthlyRate > 0
               ? initial * Math.pow(1 + monthlyRate, months) +
-                monthly *
-                  ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate)
+                monthly * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate)
               : initial + monthly * 12 * t;
 
           const totalContributed = initial + monthly * 12 * t;
@@ -439,7 +405,7 @@
           }
         }
 
-        // Update KPI summary cards with final year values
+        // Update summary cards with final year values
         const finalIdx = nominalData.length - 1;
         const finalNetReal = netRealData[finalIdx];
         const finalCAGR = calculateEffectiveCAGR(
@@ -449,9 +415,8 @@
           maxYears,
         );
 
-        document.getElementById("kpiNominal").innerText = formatCurrency(
-          nominalData[finalIdx],
-        );
+        document.getElementById("kpiNominal").innerText =
+          formatCurrency(nominalData[finalIdx]);
         document.getElementById("kpiNetReal").innerText =
           formatCurrency(finalNetReal);
         document.getElementById("kpiRealRate").innerText =
@@ -464,6 +429,10 @@
         document.getElementById("kpiInflationLoss").innerText =
           `- ${formatCurrency(inflationLossData[finalIdx])}`;
 
+        document.getElementById("inputsSummary").innerText =
+          `${formatCurrency(initial)} now, ${formatCurrency(monthly)}/month at ` +
+          `${(annualRate * 100).toFixed(1)}% for ${maxYears} years.`;
+
         // Update Table Body
         const tbody = document.getElementById("tableBody");
         tbody.innerHTML = "";
@@ -471,17 +440,19 @@
           const tr = document.createElement("tr");
           tr.className = "hover:bg-slate-50 transition-colors";
           tr.innerHTML = `
-                    <td class="py-3 px-4 font-medium text-slate-800">${row.period}</td>
-                    <td class="py-3 px-4 text-slate-600">${formatCurrency(row.contributed)}</td>
-                    <td class="py-3 px-4 font-semibold text-slate-900">${formatCurrency(row.nominal)}</td>
-                    <td class="py-3 px-4 text-slate-500">${formatCurrency(row.cashReal)}</td>
-                    <td class="py-3 px-4 text-amber-600 font-medium">- ${formatCurrency(row.tax)}</td>
-                    <td class="py-3 px-4 text-rose-600 font-medium">- ${formatCurrency(row.inflation)}</td>
-                    <td class="py-3 px-4 text-emerald-600 font-bold">${formatCurrency(row.netReal)}</td>
-                    <td class="py-3 px-4 text-emerald-700 font-semibold">${row.period === "Year 0" ? "0.00%" : `${row.cagr.toFixed(2)}%`}</td>
+                    <td class="px-4 py-3 font-medium text-slate-800">${row.period}</td>
+                    <td class="px-4 py-3 tabular-nums text-slate-600">${formatCurrency(row.contributed)}</td>
+                    <td class="px-4 py-3 font-semibold tabular-nums text-slate-900">${formatCurrency(row.nominal)}</td>
+                    <td class="px-4 py-3 tabular-nums text-slate-500">${formatCurrency(row.cashReal)}</td>
+                    <td class="px-4 py-3 font-medium tabular-nums text-amber-600">- ${formatCurrency(row.tax)}</td>
+                    <td class="px-4 py-3 font-medium tabular-nums text-rose-600">- ${formatCurrency(row.inflation)}</td>
+                    <td class="px-4 py-3 font-bold tabular-nums text-emerald-600">${formatCurrency(row.netReal)}</td>
+                    <td class="px-4 py-3 font-semibold tabular-nums text-emerald-700">${row.period === "Year 0" ? "0.00%" : `${row.cagr.toFixed(2)}%`}</td>
                 `;
           tbody.appendChild(tr);
         });
+
+        renderYearList(tableRows);
 
         // Render Chart
         updateChart(
@@ -492,6 +463,35 @@
           taxLossData,
           inflationLossData,
         );
+      }
+
+      // The phone version of the table: one line per checkpoint.
+      function renderYearList(rows) {
+        const list = document.getElementById("yearList");
+        list.replaceChildren();
+        rows.forEach((row) => {
+          const li = document.createElement("li");
+          li.className = "flex items-baseline justify-between gap-3 py-2.5";
+
+          const period = document.createElement("span");
+          period.className = "text-sm font-medium text-slate-700";
+          period.textContent = row.period;
+
+          const values = document.createElement("span");
+          values.className = "text-right";
+
+          const real = document.createElement("span");
+          real.className = "block text-sm font-bold tabular-nums text-emerald-700";
+          real.textContent = formatCurrency(row.netReal);
+
+          const nominal = document.createElement("span");
+          nominal.className = "block text-[11px] tabular-nums text-slate-500";
+          nominal.textContent = `${formatCurrency(row.nominal)} on paper`;
+
+          values.append(real, nominal);
+          li.append(period, values);
+          list.append(li);
+        });
       }
 
       function updateChart(
@@ -514,54 +514,69 @@
             labels: labels,
             datasets: [
               {
-                label: "Nominal Portfolio Value",
+                label: "On paper",
                 data: nominal,
-                borderColor: "#3b82f6", // blue
+                borderColor: "#3b82f6",
                 backgroundColor: "rgba(59, 130, 246, 0.05)",
                 fill: true,
                 tension: 0.2,
+                pointRadius: 0,
+                borderWidth: 2,
               },
               {
-                label: "Net Real Wealth (After Tax & Inflation)",
+                label: "What it can buy",
                 data: netReal,
-                borderColor: "#10b981", // emerald
+                borderColor: "#10b981",
                 backgroundColor: "transparent",
                 borderWidth: 2,
                 tension: 0.2,
+                pointRadius: 0,
               },
               {
-                label: "Uninvested Cash (Real Purchasing Power)",
+                label: "Cash, uninvested",
                 data: cashReal,
-                borderColor: "#64748b", // slate gray
+                borderColor: "#64748b",
                 backgroundColor: "transparent",
                 borderDash: [5, 5],
                 tension: 0.2,
+                pointRadius: 0,
+                borderWidth: 1.5,
               },
               {
-                label: "Estimated Tax Drag",
+                label: "Tax",
                 data: taxLoss,
-                borderColor: "#f59e0b", // amber
+                borderColor: "#f59e0b",
                 backgroundColor: "transparent",
                 borderDash: [4, 4],
                 tension: 0.2,
+                pointRadius: 0,
+                borderWidth: 1.5,
               },
               {
-                label: "Inflation Purchasing Power Drag",
+                label: "Inflation",
                 data: inflationLoss,
-                borderColor: "#f43f5e", // rose
+                borderColor: "#f43f5e",
                 backgroundColor: "transparent",
                 borderDash: [2, 2],
                 tension: 0.2,
+                pointRadius: 0,
+                borderWidth: 1.5,
               },
             ],
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: { mode: "index", intersect: false },
             plugins: {
               legend: {
                 position: "bottom",
-                labels: { boxWidth: 12, font: { size: 11 } },
+                labels: {
+                  boxWidth: 10,
+                  boxHeight: 2,
+                  padding: 10,
+                  font: { size: 10 },
+                },
               },
               tooltip: {
                 callbacks: {
@@ -572,9 +587,14 @@
               },
             },
             scales: {
+              x: {
+                grid: { display: false },
+                ticks: { maxTicksLimit: 6, font: { size: 10 } },
+              },
               y: {
                 beginAtZero: true,
                 ticks: {
+                  font: { size: 10 },
                   callback: function (value) {
                     if (value >= 1000) {
                       return "$" + (value / 1000).toFixed(0) + "k";
@@ -588,12 +608,28 @@
         });
       }
 
+      // Phone tabs: chart on load, inputs one tap away.
+      const viewTabs = Array.from(document.querySelectorAll("[data-view]"));
+      viewTabs.forEach((tab) => {
+        tab.addEventListener("click", () => setView(tab.dataset.view));
+      });
+
+      function setView(view) {
+        document.body.dataset.view = view;
+        viewTabs.forEach((tab) => {
+          const on = tab.dataset.view === view;
+          tab.setAttribute("aria-selected", on ? "true" : "false");
+          tab.classList.toggle("bg-white", on);
+          tab.classList.toggle("text-slate-900", on);
+          tab.classList.toggle("shadow-sm", on);
+          tab.classList.toggle("text-slate-500", !on);
+        });
+      }
+
       // Attach event listeners to inputs for live updates
       ["initial", "monthly", "rate", "inflation", "taxRate", "years"].forEach(
         (id) => {
-          document
-            .getElementById(id)
-            .addEventListener("input", calculateResults);
+          document.getElementById(id).addEventListener("input", calculateResults);
         },
       );
 

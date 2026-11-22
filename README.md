@@ -73,10 +73,13 @@ accidentally ship balances.
 
 ## Calculators
 
-`compounding.html` and `purchase-power.html` are standalone calculator pages,
-linked from the home view. They use Tailwind and Chart.js, which the build
-vendors into `dist/assets/` with content-hashed names so the pages work
-offline; `tailwind.css` is the Tailwind input scanned from the page markup.
+`compounding.html`, `purchase-power.html` and `savings-goal.html` are standalone
+calculator pages, linked from the home view. They use Tailwind and Chart.js,
+which the build vendors into `dist/assets/` with content-hashed names so the
+pages work offline; `tailwind.css` is the Tailwind input scanned from the page
+markup. Below 1024px each page shows its inputs and its chart as separate tabs,
+so a phone screen holds one thing at a time. None of them reads the ledger: they
+are what-if pages and move no money.
 
 ## What the app reads
 
